@@ -19,12 +19,11 @@ const char *Base64Map(void)
 }
 
 // 3/17/2013 must be unsigned char or else it will use negative indices
-int Base64Encoding(const unsigned char *inputData, int dataLength, char *outputData)
+int Base64Encoding(const unsigned char *inputData, size_t dataLength, char *outputData)
 {
     // http://en.wikipedia.org/wiki/Base64
 
-    auto fnWriteBase64 = [](char *output, char base64, int &offset)
-    {
+    auto fnWriteBase64 = [](char *output, char base64, int &offset) {
         static int charCount = 0;
         output[offset++] = base64;
         if ((++charCount % 76) == 0)
@@ -47,7 +46,7 @@ int Base64Encoding(const unsigned char *inputData, int dataLength, char *outputD
         fnWriteBase64(outputData, base64Map[((inputData[j * 3 + 0] << 4) | (inputData[j * 3 + 1] >> 4)) & 63], outputOffset);
 
         // 4 low bits from the second byte and the two high bits from the third byte, masked to ignore bits 7,8
-        fnWriteBase64(outputData, base64Map[((inputData[j * 3 + 1] << 2) | (inputData[j * 3 + 2] >> 6)) & 63],  outputOffset); // Third 6 bits
+        fnWriteBase64(outputData, base64Map[((inputData[j * 3 + 1] << 2) | (inputData[j * 3 + 2] >> 6)) & 63], outputOffset); // Third 6 bits
 
         // Last 6 bits from the third byte, masked to ignore bits 7,8
         fnWriteBase64(outputData, base64Map[inputData[j * 3 + 2] & 63], outputOffset);

@@ -17,6 +17,7 @@
 #include <windows.h>
 #endif
 
+#define DONTOPTIMIZE(T, X) *(volatile T *)X = *(volatile T*)X;
 #define SHA1_MAX_FILE_BUFFER (32 * 20 * 820)
 
 // Rotate p_val32 by p_nBits bits to the left
@@ -81,12 +82,12 @@ void CSHA1::Reset()
 }
 
 #ifdef _MSC_VER
-#pragma optimize( "", off )
+#pragma GCC optimize( "", off )
 #endif
 
 void CSHA1::Transform(UINT_32 *pState, const UINT_8 *pBuffer)
 {
-    UINT_32 a = pState[0], b = pState[1], c = pState[2], d = pState[3], e = pState[4];
+    volatile UINT_32 a = pState[0], b = pState[1], c = pState[2], d = pState[3], e = pState[4];
 
     memcpy(m_block, pBuffer, 64);
 
@@ -121,18 +122,12 @@ void CSHA1::Transform(UINT_32 *pState, const UINT_8 *pBuffer)
 
     // Wipe variables
 #ifdef SHA1_WIPE_VARIABLES
-#ifndef _MSC_VER
-#pragma optimize("-no-dead-code-removal")
-#endif
     a = b = c = d = e = 0;
-#ifndef _MSC_VER
-#pragma optimize("-dead-code-removal")
-#endif
 #endif //SHA1_WIPE_VARIABLES
 }
 
 #ifdef _MSC_VER
-#pragma optimize( "", on )
+#pragma GCC optimize( "", on )
 #endif
 
 void CSHA1::Update(const UINT_8 *pbData, UINT_32 uLen)
@@ -219,12 +214,15 @@ void CSHA1::Final()
     // Wipe variables for security reasons
 #ifdef SHA1_WIPE_VARIABLES
 #ifndef _WIN32
-#pragma optmizie(-no-dead-code-removal)
     memset(m_buffer, 0, 64);
     memset(m_state, 0, 20);
     memset(m_count, 0, 8);
     memset(pbFinalCount, 0, 8);
-#pragma optimize("-dead-code-removal")
+
+    *(volatile char *)m_buffer = *(volatile char *)m_buffer;
+    *(volatile char *)m_state = *(volatile char *)m_state;
+    *(volatile char *)m_count = *(volatile char *)m_count;
+    *(volatile char *)pbFinalCount = *(volatile char *)pbFinalCount;
 #else
     SecureZeroMemory(m_buffer, 64);
     SecureZeroMemory(m_state, 20);
@@ -301,7 +299,7 @@ unsigned char *CSHA1::GetHash(void) const
 
 // http://cseweb.ucsd.edu/~mihir/papers/hmac-cb.pdf
 // Sample code: http://www.opensource.apple.com/source/freeradius/freeradius-11/freeradius/src/lib/hmac.c
-void CSHA1::HMAC(unsigned char *sharedKey, int sharedKeyLength, unsigned char *data, int dataLength,
+void CSHA1::HMAC(unsigned char *sharedKey, size_t sharedKeyLength, unsigned char *data, size_t dataLength,
                  unsigned char output[SHA1_LENGTH])
 {
     // 1. Append zeros to the end of K to create a 64 byte string
@@ -344,9 +342,9 @@ void CSHA1::HMAC(unsigned char *sharedKey, int sharedKeyLength, unsigned char *d
 
     memcpy(output, secondHash.GetHash(), SHA1_LENGTH);
 
-    //     char report[128];
-    //     memset(report,0,128);
-    //     secondHash.ReportHash( report, 0 );
+    // char report[128];
+    // memset(report,0,128);
+    // secondHash.ReportHash( report, 0 );
 }
 
 #ifdef _MSC_VER

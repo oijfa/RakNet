@@ -44,7 +44,7 @@ void SimpleMutex::Lock(void)
 #else
     int error = pthread_mutex_lock(&hMutex);
     (void) error;
-    RakAssert(error==0);
+    RakAssert(error == 0);
 #endif
 }
 
@@ -54,7 +54,7 @@ void SimpleMutex::Unlock(void)
     LeaveCriticalSection(&criticalSection);
 #else
     int error = pthread_mutex_unlock(&hMutex);
-    RakAssert(error==0);
+    RakAssert(error == 0);
 #endif
 }
 
@@ -64,7 +64,7 @@ void SimpleMutex::Init(void)
     InitializeCriticalSection(&criticalSection);
 #else
     int error = pthread_mutex_init(&hMutex, 0);
-    RakAssert(error==0);
+    RakAssert(error == 0);
 #endif
 //    isInitialized=true;
 }

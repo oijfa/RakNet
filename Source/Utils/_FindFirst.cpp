@@ -49,7 +49,7 @@ long _findfirst(const char *name, _finddata_t *f)
     fi->filter = filter.c_str();
     fi->dirName = nameCopy.c_str();  // we need to remember this for stat()
     fi->openedDir = dir;
-    fileInfo.Insert(fi, _FILE_AND_LINE_);
+    fileInfo.Insert(fi);
 
     long ret = fileInfo.Size() - 1;
 

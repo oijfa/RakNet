@@ -30,9 +30,9 @@
 #define MAX_PATH 260
 #endif
 
-bool WriteFileWithDirectories(const char *path, char *data, unsigned dataLength)
+bool WriteFileWithDirectories(const char *path, char *data, size_t dataLength)
 {
-    int index;
+    size_t index;
     FILE *fp;
     char pathCopy[MAX_PATH];
     int res;

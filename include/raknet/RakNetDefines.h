@@ -75,21 +75,6 @@
 #define MAXIMUM_NUMBER_OF_INTERNAL_IDS 10
 #endif
 
-#ifndef RakAssert
-
-
-
-#if   defined(__native_client__)
-#define RakAssert(x)
-#else
-#if defined(_DEBUG)
-#define RakAssert(x) assert(x);
-#else
-#define RakAssert(x) (void)(x);
-#endif
-#endif
-#endif
-
 /// This controls the amount of memory used per connection.
 /// This many datagrams are tracked by datagramNumber. If more than this many datagrams are sent, then an ack for an older datagram would be ignored
 /// This results in an unnecessary resend in that case

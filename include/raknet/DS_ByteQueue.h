@@ -17,6 +17,7 @@
 #ifndef __BYTE_QUEUE_H
 #define __BYTE_QUEUE_H
 
+#include <cstdio>
 #include "Export.h"
 
 /// The namespace DataStructures was only added to avoid compiler errors for commonly named data structures
@@ -28,18 +29,18 @@ namespace DataStructures
     public:
         ByteQueue();
         ~ByteQueue();
-        void WriteBytes(const char *in, unsigned length, const char *file, unsigned int line);
-        bool ReadBytes(char *out, unsigned maxLengthToRead, bool peek);
-        unsigned GetBytesWritten(void) const;
-        char* PeekContiguousBytes(unsigned int *outLength) const;
-        void IncrementReadOffset(unsigned length);
-        void DecrementReadOffset(unsigned length);
-        void Clear(const char *file, unsigned int line);
+        void WriteBytes(const char *in, size_t length);
+        bool ReadBytes(char *out, size_t maxLengthToRead, bool peek);
+        size_t GetBytesWritten(void) const;
+        char* PeekContiguousBytes(size_t *outLength) const;
+        void IncrementReadOffset(size_t length);
+        void DecrementReadOffset(size_t length);
+        void Clear();
         void Print(void);
 
     protected:
         char *data;
-        unsigned readOffset, writeOffset, lengthAllocated;
+        size_t readOffset, writeOffset, lengthAllocated;
     };
 }
 

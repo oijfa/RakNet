@@ -9,6 +9,7 @@ You can do whatever you want with it.
 #include <conio.h> /* kbhit(), getch() */
 
 #else
+
 #include <sys/time.h> /* struct timeval, select() */
 /* ICANON, ECHO, TCSANOW, struct termios */
 #include <termios.h> /* tcgetattr(), tcsetattr() */
@@ -18,12 +19,14 @@ You can do whatever you want with it.
 #include <string.h> /* memcpy */
 
 static struct termios g_old_kbd_mode;
+
 /*****************************************************************************
 *****************************************************************************/
 static void cooked(void)
 {
     tcsetattr(0, TCSANOW, &g_old_kbd_mode);
 }
+
 /*****************************************************************************
 *****************************************************************************/
 static void raw(void)
@@ -32,7 +35,7 @@ static void raw(void)
 /**/
     struct termios new_kbd_mode;
 
-    if(init)
+    if (init)
         return;
 /* put keyboard (stdin, actually) in raw, unbuffered mode */
     tcgetattr(0, &g_old_kbd_mode);
@@ -46,6 +49,7 @@ static void raw(void)
 
     init = 1;
 }
+
 /*****************************************************************************
 *****************************************************************************/
 static int kbhit(void)
@@ -60,13 +64,14 @@ static int kbhit(void)
     FD_SET(0, &read_handles);
     timeout.tv_sec = timeout.tv_usec = 0;
     status = select(0 + 1, &read_handles, NULL, NULL, &timeout);
-    if(status < 0)
+    if (status < 0)
     {
         printf("select() failed in kbhit()\n");
         exit(1);
     }
     return status;
 }
+
 /*****************************************************************************
 *****************************************************************************/
 static int getch(void)
@@ -75,10 +80,11 @@ static int getch(void)
 
     raw();
 /* stdin = fd 0 */
-    if(read(0, &temp, 1) != 1)
+    if (read(0, &temp, 1) != 1)
         return 0;
     return temp;
 }
+
 #endif
 
 

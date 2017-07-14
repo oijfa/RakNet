@@ -18,120 +18,121 @@ using namespace DataStructures;
 
 ByteQueue::ByteQueue()
 {
-    readOffset=writeOffset=lengthAllocated=0;
-    data=0;
+    readOffset = writeOffset = lengthAllocated = 0;
+    data = 0;
 }
+
 ByteQueue::~ByteQueue()
 {
-    Clear(_FILE_AND_LINE_);
-
-
+    Clear();
 }
-void ByteQueue::WriteBytes(const char *in, unsigned length, const char *file, unsigned int line)
+
+void ByteQueue::WriteBytes(const char *in, size_t length)
 {
-    unsigned bytesWritten;
-    bytesWritten=GetBytesWritten();
-    if (lengthAllocated==0 || length > lengthAllocated-bytesWritten-1)
+    size_t bytesWritten = GetBytesWritten();
+    if (lengthAllocated == 0 || length > lengthAllocated - bytesWritten - 1)
     {
-        unsigned oldLengthAllocated=lengthAllocated;
+        size_t oldLengthAllocated = lengthAllocated;
         // Always need to waste 1 byte for the math to work, else writeoffset==readoffset
-        unsigned newAmountToAllocate=length+oldLengthAllocated+1;
-        if (newAmountToAllocate<256)
-            newAmountToAllocate=256;
-        lengthAllocated=lengthAllocated + newAmountToAllocate;
-        data=(char*)realloc(data, lengthAllocated);
+        size_t newAmountToAllocate = length + oldLengthAllocated + 1;
+        if (newAmountToAllocate < 256)
+            newAmountToAllocate = 256;
+        lengthAllocated = lengthAllocated + newAmountToAllocate;
+        data = (char *) realloc(data, lengthAllocated);
         if (writeOffset < readOffset)
         {
             if (writeOffset <= newAmountToAllocate)
             {
                 memcpy(data + oldLengthAllocated, data, writeOffset);
-                writeOffset=readOffset+bytesWritten;
+                writeOffset = readOffset + bytesWritten;
             }
             else
             {
                 memcpy(data + oldLengthAllocated, data, newAmountToAllocate);
-                memmove(data, data+newAmountToAllocate, writeOffset-newAmountToAllocate);
-                writeOffset-=newAmountToAllocate;
+                memmove(data, data + newAmountToAllocate, writeOffset - newAmountToAllocate);
+                writeOffset -= newAmountToAllocate;
             }
         }
     }
 
-    if (length <= lengthAllocated-writeOffset)
-        memcpy(data+writeOffset, in, length);
+    if (length <= lengthAllocated - writeOffset)
+        memcpy(data + writeOffset, in, length);
     else
     {
         // Wrap
-        memcpy(data+writeOffset, in, lengthAllocated-writeOffset);
-        memcpy(data, in+(lengthAllocated-writeOffset), length-(lengthAllocated-writeOffset));
+        memcpy(data + writeOffset, in, lengthAllocated - writeOffset);
+        memcpy(data, in + (lengthAllocated - writeOffset), length - (lengthAllocated - writeOffset));
     }
-    writeOffset=(writeOffset+length) % lengthAllocated;
+    writeOffset = (writeOffset + length) % lengthAllocated;
 }
-bool ByteQueue::ReadBytes(char *out, unsigned maxLengthToRead, bool peek)
+
+bool ByteQueue::ReadBytes(char *out, size_t maxLengthToRead, bool peek)
 {
-    unsigned bytesWritten = GetBytesWritten();
-    unsigned bytesToRead = bytesWritten < maxLengthToRead ? bytesWritten : maxLengthToRead;
-    if (bytesToRead==0)
+    size_t bytesWritten = GetBytesWritten();
+    size_t bytesToRead = bytesWritten < maxLengthToRead ? bytesWritten : maxLengthToRead;
+    if (bytesToRead == 0)
         return false;
-    if (writeOffset>=readOffset)
-    {
-        memcpy(out, data+readOffset, bytesToRead);
-    }
+    if (writeOffset >= readOffset)
+        memcpy(out, data + readOffset, bytesToRead);
     else
     {
-        unsigned availableUntilWrap = lengthAllocated-readOffset;
+        size_t availableUntilWrap = lengthAllocated - readOffset;
         if (bytesToRead <= availableUntilWrap)
-        {
-            memcpy(out, data+readOffset, bytesToRead);
-        }
+            memcpy(out, data + readOffset, bytesToRead);
         else
         {
-            memcpy(out, data+readOffset, availableUntilWrap);
-            memcpy(out+availableUntilWrap, data, bytesToRead-availableUntilWrap);
+            memcpy(out, data + readOffset, availableUntilWrap);
+            memcpy(out + availableUntilWrap, data, bytesToRead - availableUntilWrap);
         }
     }
 
-    if (peek==false)
+    if (!peek)
         IncrementReadOffset(bytesToRead);
 
     return true;
 }
-char* ByteQueue::PeekContiguousBytes(unsigned int *outLength) const
+
+char *ByteQueue::PeekContiguousBytes(size_t *outLength) const
 {
-    if (writeOffset>=readOffset)
-        *outLength=writeOffset-readOffset;
+    if (writeOffset >= readOffset)
+        *outLength = writeOffset - readOffset;
     else
-        *outLength=lengthAllocated-readOffset;
-    return data+readOffset;
+        *outLength = lengthAllocated - readOffset;
+    return data + readOffset;
 }
-void ByteQueue::Clear(const char *file, unsigned int line)
+
+void ByteQueue::Clear()
 {
     if (lengthAllocated)
         free(data);
-    readOffset=writeOffset=lengthAllocated=0;
-    data=0;
+    readOffset = writeOffset = lengthAllocated = 0;
+    data = 0;
 }
-unsigned ByteQueue::GetBytesWritten(void) const
+
+size_t ByteQueue::GetBytesWritten(void) const
 {
-    if (writeOffset>=readOffset)
-        return writeOffset-readOffset;
+    if (writeOffset >= readOffset)
+        return writeOffset - readOffset;
     else
-        return writeOffset+(lengthAllocated-readOffset);
+        return writeOffset + (lengthAllocated - readOffset);
 }
-void ByteQueue::IncrementReadOffset(unsigned length)
+
+void ByteQueue::IncrementReadOffset(size_t length)
 {
-    readOffset=(readOffset+length) % lengthAllocated;
+    readOffset = (readOffset + length) % lengthAllocated;
 }
-void ByteQueue::DecrementReadOffset(unsigned length)
+
+void ByteQueue::DecrementReadOffset(size_t length)
 {
-    if (length>readOffset)
-        readOffset=lengthAllocated-(length-readOffset);
+    if (length > readOffset)
+        readOffset = lengthAllocated - (length - readOffset);
     else
-        readOffset-=length;
+        readOffset -= length;
 }
+
 void ByteQueue::Print(void)
 {
-    unsigned i;
-    for (i=readOffset; i!=writeOffset; i++)
+    for (size_t i = readOffset; i != writeOffset; i++)
         RAKNET_DEBUG_PRINTF("%i ", data[i]);
     RAKNET_DEBUG_PRINTF("\n");
 }

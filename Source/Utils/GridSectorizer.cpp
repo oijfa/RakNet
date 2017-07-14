@@ -15,28 +15,31 @@
 
 GridSectorizer::GridSectorizer()
 {
-    grid=0;
+    grid = 0;
 }
+
 GridSectorizer::~GridSectorizer()
 {
     if (grid)
         delete[] grid;
 }
-void GridSectorizer::Init(const float _maxCellWidth, const float _maxCellHeight, const float minX, const float minY, const float maxX, const float maxY)
+
+void GridSectorizer::Init(float _maxCellWidth, float _maxCellHeight, float minX, float minY, float maxX, float maxY)
 {
     RakAssert(_maxCellWidth > 0.0f && _maxCellHeight > 0.0f);
     if (grid)
         delete[] grid;
 
-    cellOriginX=minX;
-    cellOriginY=minY;
-    gridWidth=maxX-minX;
-    gridHeight=maxY-minY;
-    gridCellWidthCount=(int) ceil(gridWidth/_maxCellWidth);
-    gridCellHeightCount=(int) ceil(gridHeight/_maxCellHeight);
-    // Make the cells slightly smaller, so we allocate an extra unneeded cell if on the edge.  This way we don't go outside the array on rounding errors.
-    cellWidth=gridWidth/gridCellWidthCount;
-    cellHeight=gridHeight/gridCellHeightCount;
+    cellOriginX = minX;
+    cellOriginY = minY;
+    gridWidth = maxX - minX;
+    gridHeight = maxY - minY;
+    gridCellWidthCount = (unsigned) ceil(gridWidth / _maxCellWidth);
+    gridCellHeightCount = (unsigned) ceil(gridHeight / _maxCellHeight);
+    // Make the cells slightly smaller, so we allocate an extra unneeded cell if on the edge.
+    // This way we don't go outside the array on rounding errors.
+    cellWidth = gridWidth / gridCellWidthCount;
+    cellHeight = gridHeight / gridCellHeightCount;
     invCellWidth = 1.0f / cellWidth;
     invCellHeight = 1.0f / cellHeight;
 
@@ -44,34 +47,35 @@ void GridSectorizer::Init(const float _maxCellWidth, const float _maxCellHeight,
     grid =new DataStructures::OrderedList<void*, void*>;
     DataStructures::OrderedList<void*,void*>::IMPLEMENT_DEFAULT_COMPARISON();
 #else
-    grid = new DataStructures::List<void*>[gridCellWidthCount*gridCellHeightCount];
+    grid = new DataStructures::List<void *>[gridCellWidthCount * gridCellHeightCount];
 #endif
 }
-void GridSectorizer::AddEntry(void *entry, const float minX, const float minY, const float maxX, const float maxY)
+
+void GridSectorizer::AddEntry(void *entry, float minX, float minY, float maxX, float maxY)
 {
-    RakAssert(cellWidth>0.0f);
+    RakAssert(cellWidth > 0.0f);
     RakAssert(minX < maxX && minY < maxY);
 
-    int xStart, yStart, xEnd, yEnd, xCur, yCur;
-    xStart=WorldToCellXOffsetAndClamped(minX);
-    yStart=WorldToCellYOffsetAndClamped(minY);
-    xEnd=WorldToCellXOffsetAndClamped(maxX);
-    yEnd=WorldToCellYOffsetAndClamped(maxY);
+    unsigned xStart = WorldToCellXOffsetAndClamped(minX);
+    unsigned yStart = WorldToCellYOffsetAndClamped(minY);
+    unsigned xEnd = WorldToCellXOffsetAndClamped(maxX);
+    unsigned yEnd = WorldToCellYOffsetAndClamped(maxY);
 
-    for (xCur=xStart; xCur <= xEnd; ++xCur)
+    for (unsigned xCur = xStart; xCur <= xEnd; ++xCur)
     {
-        for (yCur=yStart; yCur <= yEnd; ++yCur)
+        for (unsigned yCur = yStart; yCur <= yEnd; ++yCur)
         {
 #ifdef _USE_ORDERED_LIST
             grid[yCur*gridCellWidthCount+xCur].Insert(entry,entry, true);
 #else
-            grid[yCur*gridCellWidthCount+xCur].Insert(entry, _FILE_AND_LINE_);
+            grid[yCur * gridCellWidthCount + xCur].Insert(entry);
 #endif
         }
     }
 }
+
 #ifdef _USE_ORDERED_LIST
-void GridSectorizer::RemoveEntry(void *entry, const float minX, const float minY, const float maxX, const float maxY)
+void GridSectorizer::RemoveEntry(void *entry, float minX, float minY, float maxX, float maxY)
 {
     RakAssert(cellWidth>0.0f);
     RakAssert(minX <= maxX && minY <= maxY);
@@ -90,8 +94,8 @@ void GridSectorizer::RemoveEntry(void *entry, const float minX, const float minY
         }
     }
 }
-void GridSectorizer::MoveEntry(void *entry, const float sourceMinX, const float sourceMinY, const float sourceMaxX, const float sourceMaxY,
-               const float destMinX, const float destMinY, const float destMaxX, const float destMaxY)
+void GridSectorizer::MoveEntry(void *entry, float sourceMinX, float sourceMinY, float sourceMaxX, float sourceMaxY,
+               float destMinX, float destMinY, float destMaxX, float destMaxY)
 {
     RakAssert(cellWidth>0.0f);
     RakAssert(sourceMinX < sourceMaxX && sourceMinY < sourceMaxY);
@@ -141,61 +145,64 @@ void GridSectorizer::MoveEntry(void *entry, const float sourceMinX, const float 
     }
 }
 #endif
-void GridSectorizer::GetEntries(DataStructures::List<void*>& intersectionList, const float minX, const float minY, const float maxX, const float maxY)
+
+void GridSectorizer::GetEntries(DataStructures::List<void *> &intersectionList, float minX, float minY, float maxX, float maxY)
 {
 #ifdef _USE_ORDERED_LIST
     DataStructures::OrderedList<void*, void*>* cell;
 #else
-    DataStructures::List<void*>* cell;
+    DataStructures::List<void *> *cell;
 #endif
-    int xStart, yStart, xEnd, yEnd, xCur, yCur;
-    unsigned index;
-    xStart=WorldToCellXOffsetAndClamped(minX);
-    yStart=WorldToCellYOffsetAndClamped(minY);
-    xEnd=WorldToCellXOffsetAndClamped(maxX);
-    yEnd=WorldToCellYOffsetAndClamped(maxY);
+    unsigned xStart = WorldToCellXOffsetAndClamped(minX);
+    unsigned yStart = WorldToCellYOffsetAndClamped(minY);
+    unsigned xEnd = WorldToCellXOffsetAndClamped(maxX);
+    unsigned yEnd = WorldToCellYOffsetAndClamped(maxY);
 
-    intersectionList.Clear(true, _FILE_AND_LINE_);
-    for (xCur=xStart; xCur <= xEnd; ++xCur)
+    intersectionList.Clear(true);
+    for (unsigned xCur = xStart; xCur <= xEnd; ++xCur)
     {
-        for (yCur=yStart; yCur <= yEnd; ++yCur)
+        for (unsigned yCur = yStart; yCur <= yEnd; ++yCur)
         {
-            cell = grid+yCur*gridCellWidthCount+xCur;
-            for (index=0; index < cell->Size(); ++index)
-                intersectionList.Insert(cell->operator [](index), _FILE_AND_LINE_);
+            cell = grid + yCur * gridCellWidthCount + xCur;
+            for (unsigned index = 0; index < cell->Size(); ++index)
+                intersectionList.Insert(cell->operator[](index));
         }
     }
 }
-bool GridSectorizer::PositionCrossesCells(const float originX, const float originY, const float destinationX, const float destinationY) const
+
+bool GridSectorizer::PositionCrossesCells(float originX, float originY, float destinationX, float destinationY) const
 {
-    return originX/cellWidth!=destinationX/cellWidth || originY/cellHeight!=destinationY/cellHeight;
+    return originX / cellWidth != destinationX / cellWidth || originY / cellHeight != destinationY / cellHeight;
 }
-int GridSectorizer::WorldToCellX(const float input) const
+
+unsigned GridSectorizer::WorldToCellX(float input) const
 {
-    return (int)((input-cellOriginX)*invCellWidth);
+    return (unsigned) ((input - cellOriginX) * invCellWidth);
 }
-int GridSectorizer::WorldToCellY(const float input) const
+
+unsigned GridSectorizer::WorldToCellY(float input) const
 {
-    return (int)((input-cellOriginY)*invCellHeight);
+    return (unsigned) ((input - cellOriginY) * invCellHeight);
 }
-int GridSectorizer::WorldToCellXOffsetAndClamped(const float input) const
+
+unsigned GridSectorizer::WorldToCellXOffsetAndClamped(float input) const
 {
-    int cell=WorldToCellX(input);
+    unsigned cell = WorldToCellX(input);
     cell = cell > 0 ? cell : 0; // __max(cell,0);
-    cell = gridCellWidthCount-1 < cell ? gridCellWidthCount-1 : cell; // __min(gridCellWidthCount-1, cell);
+    cell = gridCellWidthCount - 1 < cell ? gridCellWidthCount - 1 : cell; // __min(gridCellWidthCount-1, cell);
     return cell;
 }
-int GridSectorizer::WorldToCellYOffsetAndClamped(const float input) const
+
+unsigned GridSectorizer::WorldToCellYOffsetAndClamped(float input) const
 {
-    int cell=WorldToCellY(input);
+    unsigned cell = WorldToCellY(input);
     cell = cell > 0 ? cell : 0; // __max(cell,0);
-    cell = gridCellHeightCount-1 < cell ? gridCellHeightCount-1 : cell; // __min(gridCellHeightCount-1, cell);
+    cell = gridCellHeightCount - 1 < cell ? gridCellHeightCount - 1 : cell; // __min(gridCellHeightCount-1, cell);
     return cell;
 }
+
 void GridSectorizer::Clear(void)
 {
-    int cur;
-    int count = gridCellWidthCount*gridCellHeightCount;
-    for (cur=0; cur<count;cur++)
-        grid[cur].Clear(true, _FILE_AND_LINE_);
+    for (unsigned cur = 0; cur < gridCellWidthCount * gridCellHeightCount; cur++)
+        grid[cur].Clear(true);
 }

@@ -18,6 +18,8 @@
 #define __REF_COUNTED_OBJ_H
 
 
+#include <cstddef>
+
 /// World's simplest class :)
 class RefCountedObj
 {
@@ -26,7 +28,7 @@ class RefCountedObj
         virtual ~RefCountedObj() {}
         void AddRef(void) {refCount++;}
         void Deref(void) {if (--refCount==0) delete this;}
-        int refCount;
+        size_t refCount;
 };
 
 #endif

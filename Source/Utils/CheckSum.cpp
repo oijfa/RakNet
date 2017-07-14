@@ -91,7 +91,7 @@ void CheckSum::Add(unsigned char value)
 
 void CheckSum::Add(unsigned char *b, unsigned int length)
 {
-    for (unsigned int i = 0; i < length; i++)
+    for (unsigned i = 0; i < length; i++)
         Add(b[i]);
 } // CheckSum::add(LPunsigned char, unsigned int)
 
