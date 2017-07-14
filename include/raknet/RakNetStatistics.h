@@ -99,19 +99,18 @@ struct RAK_DLL_EXPORT RakNetStatistics
     /// What is the average total packetloss over the lifetime of the connection?
     float packetlossTotal;
 
-    RakNetStatistics& operator +=(const RakNetStatistics& other)
+    RakNetStatistics &operator+=(const RakNetStatistics &other)
     {
-        unsigned i;
-        for (i=0; i < NUMBER_OF_PRIORITIES; i++)
+        for (size_t i = 0; i < NUMBER_OF_PRIORITIES; i++)
         {
-            messageInSendBuffer[i]+=other.messageInSendBuffer[i];
-            bytesInSendBuffer[i]+=other.bytesInSendBuffer[i];
+            messageInSendBuffer[i] += other.messageInSendBuffer[i];
+            bytesInSendBuffer[i] += other.bytesInSendBuffer[i];
         }
 
-        for (i=0; i < RNS_PER_SECOND_METRICS_COUNT; i++)
+        for (size_t i = 0; i < RNS_PER_SECOND_METRICS_COUNT; i++)
         {
-            valueOverLastSecond[i]+=other.valueOverLastSecond[i];
-            runningTotal[i]+=other.runningTotal[i];
+            valueOverLastSecond[i] += other.valueOverLastSecond[i];
+            runningTotal[i] += other.runningTotal[i];
         }
 
         return *this;

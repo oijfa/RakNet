@@ -84,8 +84,8 @@ struct BPSTracker
 {
     BPSTracker();
     ~BPSTracker();
-    void Reset(const char *file, unsigned int line);
-    inline void Push1(CCTimeType time, uint64_t value1) {dataQueue.Push(TimeAndValue2(time,value1),_FILE_AND_LINE_); total1+=value1; lastSec1+=value1;}
+    void Reset();
+    inline void Push1(CCTimeType time, uint64_t value1) {dataQueue.Push(TimeAndValue2(time,value1)); total1+=value1; lastSec1+=value1;}
 //    void Push2(RakNet::TimeUS time, uint64_t value1, uint64_t value2);
     inline uint64_t GetBPS1(CCTimeType time) {(void) time; return lastSec1;}
     inline uint64_t GetBPS1Threadsafe(CCTimeType time) {(void) time; return lastSec1;}
@@ -196,10 +196,6 @@ public:
     // Set outgoing lag and packet loss properties
     void ApplyNetworkSimulator( double _maxSendBPS, RakNet::TimeMS _minExtraPing, RakNet::TimeMS _extraPingVariance );
 
-    /// Returns if you previously called ApplyNetworkSimulator
-    /// \return If you previously called ApplyNetworkSimulator
-    bool IsNetworkSimulatorActive( void );
-
     void SetSplitMessageProgressInterval(int interval);
     void SetUnreliableTimeout(RakNet::TimeMS timeoutMS);
     /// Has a lot of time passed since the last ack
@@ -302,12 +298,6 @@ private:
     // Initialize the variables
     void InitializeVariables( void );
 
-    /// Given the current time, is this time so old that we should consider it a timeout?
-    bool IsExpiredTime(unsigned int input, CCTimeType currentTime) const;
-
-    // Make it so we don't do resends within a minimum threshold of time
-    void UpdateNextActionTime(void);
-
 
     /// Does this packet number represent a packet that was skipped (out of order?)
     //unsigned int IsReceivedPacketHole(unsigned int input, RakNet::TimeMS currentTime) const;
@@ -317,11 +307,6 @@ private:
 
     /// How many elements are waiting to be resent?
     unsigned int GetResendListDataSize(void) const;
-
-    /// Update all memory which is not threadsafe
-    void UpdateThreadedMemory(void);
-
-    void CalculateHistogramAckSize(void);
 
     // Used ONLY for RELIABLE_ORDERED
     // RELIABLE_SEQUENCED just returns the newest one
@@ -411,7 +396,7 @@ private:
     MessageNumberType internalOrderIndex;
     //unsigned int windowSize;
     //RakNet::BitStream updateBitStream;
-    bool deadConnection, cheater;
+    bool deadConnection;
     SplitPacketIdType splitPacketId;
     RakNet::TimeMS timeoutTime; // How long to wait in MS before timing someone out
     //int MAX_AVERAGE_PACKETS_PER_SECOND; // Name says it all
@@ -448,15 +433,8 @@ private:
     DataStructures::Heap<reliabilityHeapWeightType, InternalPacket*, false> orderingHeaps[NUMBER_OF_ORDERED_STREAMS];
     OrderingIndexType heapIndexOffsets[NUMBER_OF_ORDERED_STREAMS];
 
-
-
-
-
-
-
 //    CCTimeType histogramStart;
 //    unsigned histogramBitsSent;
-
 
     /// Memory-efficient receivedPackets algorithm:
     /// receivedPacketsBaseIndex is the packet number we are expecting
@@ -516,13 +494,11 @@ private:
 
     CCTimeType nextAckTimeToSend;
 
-
 #if USE_SLIDING_WINDOW_CONGESTION_CONTROL==1
     RakNet::CCRakNetSlidingWindow congestionManager;
 #else
     RakNet::CCRakNetUDT congestionManager;
 #endif
-
 
     uint32_t unacknowledgedBytes;
 
@@ -538,7 +514,6 @@ private:
     void AddToListTail(InternalPacket *internalPacket, bool modifyUnacknowledgedBytes);
     void PopListHead(bool modifyUnacknowledgedBytes);
     bool IsResendQueueEmpty(void) const;
-    void SortSplitPacketList(DataStructures::List<InternalPacket*> &data, unsigned int leftEdge, unsigned int rightEdge) const;
     void SendACKs(RakNetSocket2 *s, SystemAddress &systemAddress, CCTimeType time, RakNetRandom *rnr, BitStream &updateBitStream);
 
     DataStructures::List<InternalPacket*> packetsToSendThisUpdate;
@@ -573,8 +548,8 @@ private:
     // Set the data pointer to externallyAllocatedPtr, do not allocate
     void AllocInternalPacketData(InternalPacket *internalPacket, unsigned char *externallyAllocatedPtr);
     // Allocate new
-    void AllocInternalPacketData(InternalPacket *internalPacket, unsigned int numBytes, bool allowStack, const char *file, unsigned int line);
-    void FreeInternalPacketData(InternalPacket *internalPacket, const char *file, unsigned int line);
+    void AllocInternalPacketData(InternalPacket *internalPacket, unsigned int numBytes, bool allowStack);
+    void FreeInternalPacketData(InternalPacket *internalPacket);
     DataStructures::MemoryPool<InternalPacketRefCountedData> refCountedDataPool;
 
     BPSTracker bpsMetrics[RNS_PER_SECOND_METRICS_COUNT];

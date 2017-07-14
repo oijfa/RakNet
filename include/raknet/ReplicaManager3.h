@@ -186,7 +186,7 @@ public:
     /// \details Returns the size of the list that would be returned by GetReferencedReplicaList()
     /// \param[in] worldId Used for multiple worlds. World 0 is created automatically by default. See AddWorld()
     /// \return How many replica objects are in the list of replica objects
-    unsigned GetReplicaCount(WorldId worldId=0) const;
+    size_t GetReplicaCount(WorldId worldId=0) const;
 
     /// \brief Returns a replica by index
     /// \details Returns one of the items in the list that would be returned by GetReferencedReplicaList()
@@ -199,7 +199,7 @@ public:
     /// \details Returns the number of connections added with ReplicaManager3::PushConnection(), minus the number removed with ReplicaManager3::PopConnection()
     /// \param[in] worldId Used for multiple worlds. World 0 is created automatically by default. See AddWorld()
     /// \return The number of registered connections
-    unsigned int GetConnectionCount(WorldId worldId=0) const;
+    size_t GetConnectionCount(WorldId worldId=0) const;
 
     /// \brief Returns a connection pointer previously added with PushConnection()
     /// \param[in] index An index, from 0 to GetConnectionCount()-1.
@@ -321,15 +321,15 @@ protected:
     virtual void OnRakPeerShutdown(void);
     virtual void OnDetach(void);
 
-    PluginReceiveResult OnConstruction(Packet *packet, unsigned char *packetData, int packetDataLength, RakNetGUID senderGuid, unsigned char packetDataOffset, WorldId worldId);
-    PluginReceiveResult OnSerialize(Packet *packet, unsigned char *packetData, int packetDataLength, RakNetGUID senderGuid, RakNet::Time timestamp, unsigned char packetDataOffset, WorldId worldId);
-    PluginReceiveResult OnDownloadStarted(Packet *packet, unsigned char *packetData, int packetDataLength, RakNetGUID senderGuid, unsigned char packetDataOffset, WorldId worldId);
-    PluginReceiveResult OnDownloadComplete(Packet *packet, unsigned char *packetData, int packetDataLength, RakNetGUID senderGuid, unsigned char packetDataOffset, WorldId worldId);
+    PluginReceiveResult OnConstruction(Packet *packet, unsigned char *packetData, size_t packetDataLength, RakNetGUID senderGuid, unsigned char packetDataOffset, WorldId worldId);
+    PluginReceiveResult OnSerialize(Packet *packet, unsigned char *packetData, size_t packetDataLength, RakNetGUID senderGuid, RakNet::Time timestamp, unsigned char packetDataOffset, WorldId worldId);
+    PluginReceiveResult OnDownloadStarted(Packet *packet, unsigned char *packetData, size_t packetDataLength, RakNetGUID senderGuid, unsigned char packetDataOffset, WorldId worldId);
+    PluginReceiveResult OnDownloadComplete(Packet *packet, unsigned char *packetData, size_t packetDataLength, RakNetGUID senderGuid, unsigned char packetDataOffset, WorldId worldId);
 
     void DeallocReplicaNoBroadcastDestruction(RakNet::Connection_RM3 *connection, RakNet::Replica3 *replica3);
-    RakNet::Connection_RM3 * PopConnection(unsigned int index, WorldId worldId);
+    RakNet::Connection_RM3 * PopConnection(size_t index, WorldId worldId);
     Replica3* GetReplicaByNetworkID(NetworkID networkId, WorldId worldId);
-    unsigned int ReferenceInternal(RakNet::Replica3 *replica3, WorldId worldId);
+    size_t ReferenceInternal(RakNet::Replica3 *replica3, WorldId worldId);
 
     PRO defaultSendParameters;
     RakNet::Time autoSerializeInterval;
@@ -653,14 +653,14 @@ protected:
     void OnDereference(Replica3* replica3, ReplicaManager3 *replicaManager);
     void OnDownloadFromThisSystem(Replica3* replica3, ReplicaManager3 *replicaManager);
     void OnDownloadFromOtherSystem(Replica3* replica3, ReplicaManager3 *replicaManager);
-    void OnNeverConstruct(unsigned int queryToConstructIdx, ReplicaManager3 *replicaManager);
-    void OnConstructToThisConnection(unsigned int queryToConstructIdx, ReplicaManager3 *replicaManager);
+    void OnNeverConstruct(size_t queryToConstructIdx, ReplicaManager3 *replicaManager);
+    void OnConstructToThisConnection(size_t queryToConstructIdx, ReplicaManager3 *replicaManager);
     void OnConstructToThisConnection(Replica3 *replica, ReplicaManager3 *replicaManager);
     void OnNeverSerialize(LastSerializationResult *lsr, ReplicaManager3 *replicaManager);
-    void OnReplicaAlreadyExists(unsigned int queryToConstructIdx, ReplicaManager3 *replicaManager);
+    void OnReplicaAlreadyExists(size_t queryToConstructIdx, ReplicaManager3 *replicaManager);
     void OnDownloadExisting(Replica3* replica3, ReplicaManager3 *replicaManager);
-    void OnSendDestructionFromQuery(unsigned int queryToDestructIdx, ReplicaManager3 *replicaManager);
-    void OnDoNotQueryDestruction(unsigned int queryToDestructIdx, ReplicaManager3 *replicaManager);
+    void OnSendDestructionFromQuery(size_t queryToDestructIdx, ReplicaManager3 *replicaManager);
+    void OnDoNotQueryDestruction(size_t queryToDestructIdx, ReplicaManager3 *replicaManager);
     void ValidateLists(ReplicaManager3 *replicaManager) const;
     void SendSerializeHeader(RakNet::Replica3 *replica, RakNet::Time timestamp, RakNet::BitStream *bs, WorldId worldId);
 

@@ -9,7 +9,8 @@
  */
 
 #include "NativeFeatureIncludes.h"
-#if _RAKNET_SUPPORT_PacketLogger==1
+
+#if _RAKNET_SUPPORT_PacketLogger == 1
 
 #include "ThreadsafePacketLogger.h"
 #include <cstring>
@@ -21,14 +22,14 @@ ThreadsafePacketLogger::ThreadsafePacketLogger()
 {
 
 }
+
 ThreadsafePacketLogger::~ThreadsafePacketLogger()
 {
     char **msg;
     while ((msg = logMessages.ReadLock()) != 0)
-    {
         free(*msg);
-    }
 }
+
 void ThreadsafePacketLogger::Update(void)
 {
     char **msg;
@@ -38,10 +39,11 @@ void ThreadsafePacketLogger::Update(void)
         free(*msg);
     }
 }
+
 void ThreadsafePacketLogger::AddToLog(const char *str)
 {
     char **msg = logMessages.WriteLock();
-    *msg = (char*) malloc(strlen(str)+1);
+    *msg = (char *) malloc(strlen(str) + 1);
     strcpy(*msg, str);
     logMessages.WriteUnlock();
 }

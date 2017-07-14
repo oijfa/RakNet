@@ -221,7 +221,7 @@ void FileList::AddFile(const char *filename, const char *fullPathToFile, const c
     n.filename=filename;
     n.fullPathToFile=fullPathToFile;
 
-    fileList.Insert(n, _FILE_AND_LINE_);
+    fileList.Insert(n);
 }
 void FileList::AddFilesFromDirectory(const char *applicationDirectory, const char *subDirectory, bool writeHash, bool writeData, bool recursive, FileListNodeContext context)
 {
@@ -261,7 +261,7 @@ void FileList::AddFilesFromDirectory(const char *applicationDirectory, const cha
     for (unsigned int flpcIndex=0; flpcIndex < fileListProgressCallbacks.Size(); flpcIndex++)
         fileListProgressCallbacks[flpcIndex]->OnAddFilesFromDirectoryStarted(this, dirSoFar);
     // RAKNET_DEBUG_PRINTF("Adding files from directory %s\n",dirSoFar);
-    dirList.Push(dirSoFar, _FILE_AND_LINE_ );
+    dirList.Push(dirSoFar);
     while (dirList.Size())
     {
         dirSoFar=dirList.Pop();
@@ -370,7 +370,7 @@ void FileList::AddFilesFromDirectory(const char *applicationDirectory, const cha
                 strcpy(newDir, dirSoFar);
                 strcat(newDir, fileInfo.name);
                 strcat(newDir, "/");
-                dirList.Push(newDir, _FILE_AND_LINE_ );
+                dirList.Push(newDir);
             }
 
         } while (_findnext(dir, &fileInfo ) != -1);
@@ -387,7 +387,7 @@ void FileList::Clear(void)
     {
         free(fileList[i].data);
     }
-    fileList.Clear(false, _FILE_AND_LINE_);
+    fileList.Clear(false);
 }
 void FileList::Serialize(RakNet::BitStream *outBitStream)
 {
@@ -471,7 +471,7 @@ bool FileList::Deserialize(RakNet::BitStream *inBitStream)
         }
         n.filename=filename;
         n.fullPathToFile=filename;
-        fileList.Insert(n, _FILE_AND_LINE_);
+        fileList.Insert(n);
     }
 
     return true;
@@ -778,7 +778,7 @@ void FileList::AddCallback(FileListProgress *cb)
         return;
 
     if ((unsigned int) fileListProgressCallbacks.GetIndexOf(cb)==(unsigned int)-1)
-        fileListProgressCallbacks.Push(cb, _FILE_AND_LINE_);
+        fileListProgressCallbacks.Push(cb);
 }
 void FileList::RemoveCallback(FileListProgress *cb)
 {
@@ -788,7 +788,7 @@ void FileList::RemoveCallback(FileListProgress *cb)
 }
 void FileList::ClearCallbacks(void)
 {
-    fileListProgressCallbacks.Clear(true, _FILE_AND_LINE_);
+    fileListProgressCallbacks.Clear(true);
 }
 void FileList::GetCallbacks(DataStructures::List<FileListProgress*> &callbacks)
 {

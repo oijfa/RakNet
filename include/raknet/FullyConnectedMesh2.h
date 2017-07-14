@@ -124,8 +124,8 @@ public:
     /// \brief Clear all memory and reset everything
     void Clear(void);
 
-    unsigned int GetParticipantCount(void) const;
-    void GetParticipantCount(unsigned int *participantListSize) const;
+    size_t GetParticipantCount(void) const;
+    void GetParticipantCount(size_t *participantListSize) const;
 
     /// In the simple case of forming a peer to peer mesh:
     ///
@@ -277,13 +277,13 @@ public:
     };
 
     /// \internal for debugging
-    unsigned int GetTotalConnectionCount(void) const;
+    size_t GetTotalConnectionCount(void) const;
 
 protected:
     void PushNewHost(const RakNetGUID &guid, RakNetGUID oldHost);
     void SendOurFCMGuid(SystemAddress addr);
     void SendFCMGuidRequest(RakNetGUID rakNetGuid);
-    void SendConnectionCountResponse(SystemAddress addr, unsigned int responseTotalConnectionCount);
+    void SendConnectionCountResponse(SystemAddress addr, size_t responseTotalConnectionCount);
     void OnRequestFCMGuid(Packet *packet);
     //void OnUpdateUserContext(Packet *packet);
     void OnRespondConnectionCount(Packet *packet);
@@ -295,17 +295,17 @@ protected:
     bool AddParticipantInternal( RakNetGUID rakNetGuid, FCM2Guid theirFCMGuid );
     void CalculateAndPushHost(void);
     bool ParticipantListComplete(void);
-    void IncrementTotalConnectionCount(unsigned int i);
+    void IncrementTotalConnectionCount(size_t i);
     PluginReceiveResult OnVerifiedJoinStart(Packet *packet);
     PluginReceiveResult OnVerifiedJoinCapable(Packet *packet);
     virtual void OnVerifiedJoinFailed(RakNetGUID hostGuid, bool callCloseConnection);
     virtual void OnVerifiedJoinAccepted(Packet *packet);
     virtual void OnVerifiedJoinRejected(Packet *packet);
-    unsigned int GetJoinsInProgressIndex(RakNetGUID requester) const;
+    size_t GetJoinsInProgressIndex(RakNetGUID requester) const;
     void UpdateVerifiedJoinInProgressMember(const AddressOrGUID systemIdentifier, RakNetGUID guidToAssign, JoinInProgressState newState);
     bool ProcessVerifiedJoinInProgressIfCompleted(VerifiedJoinInProgress *vjip);
     void ReadVerifiedJoinInProgressMember(RakNet::BitStream *bsIn, VerifiedJoinInProgressMember *vjipm);
-    unsigned int GetVerifiedJoinInProgressMemberIndex(const AddressOrGUID systemIdentifier, VerifiedJoinInProgress *vjip);
+    size_t GetVerifiedJoinInProgressMemberIndex(const AddressOrGUID systemIdentifier, VerifiedJoinInProgress *vjip);
     void DecomposeJoinCapable(Packet *packet, VerifiedJoinInProgress *vjip);
     void WriteVerifiedJoinCapable(RakNet::BitStream *bsOut, VerifiedJoinInProgress *vjip);
     void CategorizeVJIP(VerifiedJoinInProgress *vjip,
@@ -324,7 +324,7 @@ protected:
     // totalConnectionCount is roughly maintained across all systems, and increments by 1 each time a new system connects to the mesh
     // It is always kept at the highest known value
     // It is used as the high 4 bytes for new FCMGuids. This causes newer values of FCM2Guid to be higher than lower values. The lowest value is the host.
-    unsigned int totalConnectionCount;
+    size_t totalConnectionCount;
 
     // Our own ourFCMGuid. Starts at unassigned (0). Assigned once we send ID_FCM2_REQUEST_FCMGUID and get back ID_FCM2_RESPOND_CONNECTION_COUNT
     FCM2Guid ourFCMGuid;

@@ -14,7 +14,8 @@
 
 
 #include "NativeFeatureIncludes.h"
-#if _RAKNET_SUPPORT_UDPProxyCoordinator==1 && _RAKNET_SUPPORT_UDPForwarder==1
+
+#if _RAKNET_SUPPORT_UDPProxyCoordinator == 1 && _RAKNET_SUPPORT_UDPForwarder == 1
 
 #ifndef __UDP_PROXY_COORDINATOR_H
 #define __UDP_PROXY_COORDINATOR_H
@@ -51,7 +52,7 @@ namespace RakNet
         /// \internal
         virtual void Update(void);
         virtual PluginReceiveResult OnReceive(Packet *packet);
-        virtual void OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
+        virtual void OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason);
 
         struct SenderAndTargetAddress
         {
@@ -83,10 +84,11 @@ namespace RakNet
             void OrderRemainingServersToTry(void);
 
         };
+
     protected:
 
-        static int ServerWithPingComp( const unsigned short &key, const UDPProxyCoordinator::ServerWithPing &data );
-        static int ForwardingRequestComp( const SenderAndTargetAddress &key, ForwardingRequest* const &data);
+        static int ServerWithPingComp(const unsigned short &key, const UDPProxyCoordinator::ServerWithPing &data);
+        static int ForwardingRequestComp(const SenderAndTargetAddress &key, ForwardingRequest *const &data);
 
         void OnForwardingRequestFromClientToCoordinator(Packet *packet);
         void OnLoginRequestFromServerToCoordinator(Packet *packet);
@@ -96,7 +98,9 @@ namespace RakNet
         void SendAllBusy(SystemAddress senderClientAddress, SystemAddress targetClientAddress, RakNetGUID targetClientGuid, SystemAddress requestingAddress);
         void Clear(void);
 
-        void SendForwardingRequest(SystemAddress sourceAddress, SystemAddress targetAddress, SystemAddress serverAddress, RakNet::TimeMS timeoutOnNoDataMS);
+        void
+        SendForwardingRequest(SystemAddress sourceAddress, SystemAddress targetAddress, SystemAddress serverAddress,
+                              RakNet::TimeMS timeoutOnNoDataMS);
 
         // Logged in servers
         //DataStructures::Multilist<ML_UNORDERED_LIST, SystemAddress> serverList;
@@ -104,7 +108,7 @@ namespace RakNet
 
         // Forwarding requests in progress
         //DataStructures::Multilist<ML_ORDERED_LIST, ForwardingRequest*, SenderAndTargetAddress> forwardingRequestList;
-        DataStructures::OrderedList<SenderAndTargetAddress, ForwardingRequest*, ForwardingRequestComp> forwardingRequestList;
+        DataStructures::OrderedList<SenderAndTargetAddress, ForwardingRequest *, ForwardingRequestComp> forwardingRequestList;
 
         RakNet::RakString remoteLoginPassword;
 

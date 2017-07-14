@@ -15,7 +15,7 @@
 
 #if !defined(__native_client__)
 
-#if RAKNET_SUPPORT_IPV6==1
+#if RAKNET_SUPPORT_IPV6 == 1
 
 void PrepareAddrInfoHints2(addrinfo *hints)
 {
@@ -62,38 +62,38 @@ void GetMyIP_Windows_Linux_IPV4And6( SystemAddress addresses[MAXIMUM_NUMBER_OF_I
 
 #else
 
-#if (defined(__GNUC__)  || defined(__GCCXML__)) && !defined(__WIN32__)
+#if (defined(__GNUC__) || defined(__GCCXML__)) && !defined(__WIN32__)
+
 #include <netdb.h>
+
 #endif
-void GetMyIP_Windows_Linux_IPV4( SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS] )
+
+void GetMyIP_Windows_Linux_IPV4(SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS])
 {
 
 
+    int idx = 0;
+    char ac[80];
+    RakAssert(gethostname(ac, sizeof(ac)) != -1);
 
-    int idx=0;
-    char ac[ 80 ];
-    int err = gethostname( ac, sizeof( ac ) );
-    (void) err;
-    RakAssert(err != -1);
+    struct hostent *phe = gethostbyname(ac);
 
-    struct hostent *phe = gethostbyname( ac );
-
-    if ( phe == 0 )
+    if (phe == 0)
     {
-        RakAssert(phe!=0);
-        return ;
+        RakAssert(phe != 0);
+        return;
     }
-    for ( idx = 0; idx < MAXIMUM_NUMBER_OF_INTERNAL_IDS; ++idx )
+    for (; idx < MAXIMUM_NUMBER_OF_INTERNAL_IDS; ++idx)
     {
-        if (phe->h_addr_list[ idx ] == 0)
+        if (phe->h_addr_list[idx] == 0)
             break;
 
-        memcpy(&addresses[idx].address.addr4.sin_addr,phe->h_addr_list[ idx ],sizeof(struct in_addr));
+        memcpy(&addresses[idx].address.addr4.sin_addr, phe->h_addr_list[idx], sizeof(struct in_addr));
     }
 
     while (idx < MAXIMUM_NUMBER_OF_INTERNAL_IDS)
     {
-        addresses[idx]=UNASSIGNED_SYSTEM_ADDRESS;
+        addresses[idx] = UNASSIGNED_SYSTEM_ADDRESS;
         idx++;
     }
 
@@ -102,13 +102,13 @@ void GetMyIP_Windows_Linux_IPV4( SystemAddress addresses[MAXIMUM_NUMBER_OF_INTER
 #endif // RAKNET_SUPPORT_IPV6==1
 
 
-void GetMyIP_Windows_Linux( SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS] )
+void GetMyIP_Windows_Linux(SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS])
 {
-    #if RAKNET_SUPPORT_IPV6==1
-        GetMyIP_Windows_Linux_IPV4And6(addresses);
-    #else
-        GetMyIP_Windows_Linux_IPV4(addresses);
-    #endif
+#if RAKNET_SUPPORT_IPV6 == 1
+    GetMyIP_Windows_Linux_IPV4And6(addresses);
+#else
+    GetMyIP_Windows_Linux_IPV4(addresses);
+#endif
 }
 
 

@@ -12,7 +12,7 @@
 
 #include "RakNetDefines.h"
 
-#if USE_SLIDING_WINDOW_CONGESTION_CONTROL!=1
+//#if USE_SLIDING_WINDOW_CONGESTION_CONTROL!=1
 
 #include <stdint.h>
 #include "RakNetTime.h"
@@ -397,6 +397,6 @@ class CCRakNetUDT
 
 }
 
-#endif
+//#endif
 
 #endif

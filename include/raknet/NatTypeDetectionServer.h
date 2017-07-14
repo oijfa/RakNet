@@ -113,16 +113,16 @@ public:
     };
 
     virtual void OnRNS2Recv(RNS2RecvStruct *recvStruct);
-    virtual void DeallocRNS2RecvStruct(RNS2RecvStruct *s, const char *file, unsigned int line);
-    virtual RNS2RecvStruct *AllocRNS2RecvStruct(const char *file, unsigned int line);
+    virtual void DeallocRNS2RecvStruct(RNS2RecvStruct *s);
+    virtual RNS2RecvStruct *AllocRNS2RecvStruct();
 protected:
     DataStructures::Queue<RNS2RecvStruct*> bufferedPackets;
     SimpleMutex bufferedPacketsMutex;
 
     void OnDetectionRequest(Packet *packet);
     DataStructures::List<NATDetectionAttempt> natDetectionAttempts;
-    unsigned int GetDetectionAttemptIndex(const SystemAddress &sa);
-    unsigned int GetDetectionAttemptIndex(RakNetGUID guid);
+    size_t GetDetectionAttemptIndex(const SystemAddress &sa);
+    size_t GetDetectionAttemptIndex(RakNetGUID guid);
 
     // s1p1 is rakpeer itself
     RakNetSocket2 *s1p2,*s2p3,*s3p4,*s4p5;

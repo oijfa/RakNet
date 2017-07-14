@@ -103,7 +103,7 @@ void CommandParserInterface::SendCommandList(TransportInterface *transport, cons
 {
     if (commandList.Size())
     {
-        for (unsigned i = 0; i < commandList.Size(); i++)
+        for (size_t i = 0; i < commandList.Size(); i++)
         {
             transport->Send(systemAddress, "%s", commandList[i].command);
             if (i < commandList.Size() - 1)
@@ -121,13 +121,13 @@ void CommandParserInterface::RegisterCommand(unsigned char parameterCount, const
     rc.command = command;
     rc.commandHelp = commandHelp;
     rc.parameterCount = parameterCount;
-    commandList.Insert(command, rc, true, _FILE_AND_LINE_);
+    commandList.Insert(command, rc, true);
 }
 
 bool CommandParserInterface::GetRegisteredCommand(const char *command, RegisteredCommand *rc)
 {
     bool objectExists;
-    unsigned index = commandList.GetIndexFromKey(command, &objectExists);
+    size_t index = commandList.GetIndexFromKey(command, &objectExists);
     if (objectExists)
         *rc = commandList[index];
     return objectExists;

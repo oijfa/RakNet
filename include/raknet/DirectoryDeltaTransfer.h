@@ -142,13 +142,13 @@ public:
 
     /// \brief Returns how many files are available for upload
     /// \return How many files are available for upload
-    unsigned GetNumberOfFilesForUpload(void) const;
+    size_t GetNumberOfFilesForUpload(void) const;
 
     /// \brief Normally, if a remote system requests files, those files are all loaded into memory and sent immediately.
     /// \details This function allows the files to be read in incremental chunks, saving memory
     /// \param[in] _incrementalReadInterface If a file in \a fileList has no data, filePullInterface will be used to read the file in chunks of size \a chunkSize
     /// \param[in] _chunkSize How large of a block of a file to send at once
-    void SetDownloadRequestIncrementalReadInterface(IncrementalReadInterface *_incrementalReadInterface, unsigned int _chunkSize);
+    void SetDownloadRequestIncrementalReadInterface(IncrementalReadInterface *_incrementalReadInterface, size_t _chunkSize);
 
     /// \internal For plugin handling
     virtual PluginReceiveResult OnReceive(Packet *packet);
@@ -161,7 +161,7 @@ protected:
     PacketPriority priority;
     char orderingChannel;
     IncrementalReadInterface *incrementalReadInterface;
-    unsigned int chunkSize;
+    size_t chunkSize;
 };
 
 } // namespace RakNet

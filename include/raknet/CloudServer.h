@@ -298,7 +298,7 @@ protected:
     void ProcessAndTransmitGetRequest(GetRequest *getRequest);
 
     void ProcessCloudQueryWithAddresses(
-        CloudServer::CloudQueryWithAddresses &cloudQueryWithAddresses,
+        CloudServer::CloudQueryWithAddresses &queryWithAddresses,
         DataStructures::List<CloudData*> &cloudDataResultList,
         DataStructures::List<CloudKey> &cloudKeyResultList
         );

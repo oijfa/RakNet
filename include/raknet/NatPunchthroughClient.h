@@ -235,7 +235,7 @@ protected:
     //void OnNatGroupPunchthroughReply(Packet *packet);
     void OnGetMostRecentPort(Packet *packet);
     void OnConnectAtTime(Packet *packet);
-    unsigned int GetPendingOpenNATIndex(RakNetGUID destination, const SystemAddress &facilitator);
+    //unsigned int GetPendingOpenNATIndex(RakNetGUID destination, const SystemAddress &facilitator);
     void SendPunchthrough(RakNetGUID destination, const SystemAddress &facilitator);
     void QueueOpenNAT(RakNetGUID destination, const SystemAddress &facilitator);
     void SendQueuedOpenNAT(void);

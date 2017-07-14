@@ -53,7 +53,7 @@ struct FileListNode
     char *data;
 
     /// Length of \a data. May be greater than fileLength if prepended with a file hash
-    BitSize_t dataLengthBytes;
+    size_t dataLengthBytes;
 
     /// Length of the file
     unsigned fileLengthBytes;

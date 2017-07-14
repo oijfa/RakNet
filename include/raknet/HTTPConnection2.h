@@ -86,7 +86,7 @@ public:
         unsigned short port;
         bool useSSL;
         int contentOffset;
-        int contentLength;
+        long contentLength;
         int ipVersion;
         void *userData;
         bool chunked;

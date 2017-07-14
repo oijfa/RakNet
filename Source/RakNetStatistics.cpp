@@ -35,8 +35,7 @@ void RAK_DLL_EXPORT RakNet::StatisticsToString(RakNetStatistics *s, char *buffer
                         "Current packetloss        %.1f%%\n",
                 (long long unsigned int) s->valueOverLastSecond[ACTUAL_BYTES_SENT],
                 (long long unsigned int) s->valueOverLastSecond[ACTUAL_BYTES_RECEIVED],
-                s->packetlossLastSecond * 100.0f
-        );
+                s->packetlossLastSecond * 100.0f);
     }
     else if (verbosityLevel == 1)
     {
@@ -57,16 +56,14 @@ void RAK_DLL_EXPORT RakNet::StatisticsToString(RakNetStatistics *s, char *buffer
                 (long long unsigned int) s->runningTotal[USER_MESSAGE_BYTES_PUSHED],
                 s->packetlossLastSecond * 100.0f,
                 s->packetlossTotal * 100.0f,
-                (long long unsigned int) (uint64_t) ((RakNet::GetTimeUS() - s->connectionStartTime) / 1000000)
-        );
+                (long long unsigned int) (uint64_t) ((RakNet::GetTimeUS() - s->connectionStartTime) / 1000000));
 
         if (s->BPSLimitByCongestionControl != 0)
         {
             char buff2[128];
             sprintf(buff2, "Send capacity                    %" PRINTF_64_BIT_MODIFIER "u bytes per second (%.0f%%)\n",
                     (long long unsigned int) s->BPSLimitByCongestionControl,
-                    100.0f * s->valueOverLastSecond[ACTUAL_BYTES_SENT] / s->BPSLimitByCongestionControl
-            );
+                    100.0f * s->valueOverLastSecond[ACTUAL_BYTES_SENT] / s->BPSLimitByCongestionControl);
             strcat(buffer, buff2);
         }
         if (s->BPSLimitByOutgoingBandwidthLimit != 0)
@@ -74,8 +71,7 @@ void RAK_DLL_EXPORT RakNet::StatisticsToString(RakNetStatistics *s, char *buffer
             char buff2[128];
             sprintf(buff2, "Send limit                       %" PRINTF_64_BIT_MODIFIER "u (%.0f%%)\n",
                     (long long unsigned int) s->BPSLimitByOutgoingBandwidthLimit,
-                    100.0f * s->valueOverLastSecond[ACTUAL_BYTES_SENT] / s->BPSLimitByOutgoingBandwidthLimit
-            );
+                    100.0f * s->valueOverLastSecond[ACTUAL_BYTES_SENT] / s->BPSLimitByOutgoingBandwidthLimit);
             strcat(buffer, buff2);
         }
     }
@@ -125,8 +121,7 @@ void RAK_DLL_EXPORT RakNet::StatisticsToString(RakNetStatistics *s, char *buffer
                 (long long unsigned int) s->bytesInResendBuffer,
                 s->packetlossLastSecond * 100.0f,
                 s->packetlossTotal * 100.0f,
-                (long long unsigned int) (uint64_t) ((RakNet::GetTimeUS() - s->connectionStartTime) / 1000000)
-        );
+                (long long unsigned int) (uint64_t) ((RakNet::GetTimeUS() - s->connectionStartTime) / 1000000));
 
         if (s->BPSLimitByCongestionControl != 0)
         {
@@ -134,8 +129,7 @@ void RAK_DLL_EXPORT RakNet::StatisticsToString(RakNetStatistics *s, char *buffer
             sprintf(buff2,
                     "Send capacity                    %" PRINTF_64_BIT_MODIFIER "u bytes per second (%.0f%%)\n",
                     (long long unsigned int) s->BPSLimitByCongestionControl,
-                    100.0f * s->valueOverLastSecond[ACTUAL_BYTES_SENT] / s->BPSLimitByCongestionControl
-            );
+                    100.0f * s->valueOverLastSecond[ACTUAL_BYTES_SENT] / s->BPSLimitByCongestionControl);
             strcat(buffer, buff2);
         }
         if (s->BPSLimitByOutgoingBandwidthLimit != 0)
@@ -143,8 +137,7 @@ void RAK_DLL_EXPORT RakNet::StatisticsToString(RakNetStatistics *s, char *buffer
             char buff2[128];
             sprintf(buff2, "Send limit                       %" PRINTF_64_BIT_MODIFIER "u (%.0f%%)\n",
                     (long long unsigned int) s->BPSLimitByOutgoingBandwidthLimit,
-                    100.0f * s->valueOverLastSecond[ACTUAL_BYTES_SENT] / s->BPSLimitByOutgoingBandwidthLimit
-            );
+                    100.0f * s->valueOverLastSecond[ACTUAL_BYTES_SENT] / s->BPSLimitByOutgoingBandwidthLimit);
             strcat(buffer, buff2);
         }
     }

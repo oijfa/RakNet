@@ -9,7 +9,9 @@
  */
 
 #include "NativeFeatureIncludes.h"
-#if _RAKNET_SUPPORT_PacketLogger==1
+
+#if _RAKNET_SUPPORT_PacketLogger == 1
+
 #include "PacketFileLogger.h"
 #include "GetTime.h"
 
@@ -17,8 +19,9 @@ using namespace RakNet;
 
 PacketFileLogger::PacketFileLogger()
 {
-    packetLogFile=0;
+    packetLogFile = 0;
 }
+
 PacketFileLogger::~PacketFileLogger()
 {
     if (packetLogFile)
@@ -27,6 +30,7 @@ PacketFileLogger::~PacketFileLogger()
         fclose(packetLogFile);
     }
 }
+
 void PacketFileLogger::StartLog(const char *filenamePrefix)
 {
     // Open file for writing

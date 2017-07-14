@@ -191,10 +191,10 @@ public:
 protected:
     // Send through either rakPeerInterface or tcpInterface, whichever is available
     void SendUnified( const RakNet::BitStream * bitStream, PacketPriority priority, PacketReliability reliability, char orderingChannel, const AddressOrGUID systemIdentifier, bool broadcast );
-    void SendUnified( const char * data, const int length, PacketPriority priority, PacketReliability reliability, char orderingChannel, const AddressOrGUID systemIdentifier, bool broadcast );
-    bool SendListUnified( const char **data, const int *lengths, const int numParameters, PacketPriority priority, PacketReliability reliability, char orderingChannel, const AddressOrGUID systemIdentifier, bool broadcast );
+    void SendUnified( const char * data, const size_t length, PacketPriority priority, PacketReliability reliability, char orderingChannel, const AddressOrGUID systemIdentifier, bool broadcast );
+    bool SendListUnified( const char **data, const size_t *lengths, size_t numParameters, PacketPriority priority, PacketReliability reliability, char orderingChannel, const AddressOrGUID systemIdentifier, bool broadcast );
 
-    Packet *AllocatePacketUnified(unsigned dataSize);
+    Packet *AllocatePacketUnified(size_t dataSize);
     void PushBackPacketUnified(Packet *packet, bool pushAtHead);
     void DeallocPacketUnified(Packet *packet);
 

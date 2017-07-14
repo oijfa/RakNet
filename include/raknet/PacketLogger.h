@@ -72,12 +72,6 @@ public:
     // Write informational messages
     virtual void WriteMiscellaneous(const char *type, const char *msg);
 
-
-    // Set to true to print ID_* instead of numbers
-    virtual void SetPrintID(bool print);
-    // Print or hide acks (clears up the screen not to print them but is worse for debugging)
-    virtual void SetPrintAcks(bool print);
-
     /// Prepend this string to output logs.
     virtual void SetPrefix(const char *_prefix);
 
@@ -97,7 +91,7 @@ protected:
     void GetLocalTime(char buffer[128]);
     bool logDirectMessages;
 
-    bool printId, printAcks;
+    bool printId;
     char prefix[256];
     char suffix[256];
 };

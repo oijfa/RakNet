@@ -28,7 +28,7 @@ struct FileListNodeContext
     uint32_t flnc_extraData2;
     uint32_t flnc_extraData3;
     void *dataPtr;
-    unsigned int dataLength;
+    size_t dataLength;
 };
 
 inline RakNet::BitStream& operator<<(RakNet::BitStream& out, FileListNodeContext& in)

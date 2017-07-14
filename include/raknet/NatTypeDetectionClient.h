@@ -14,7 +14,8 @@
 
 
 #include "NativeFeatureIncludes.h"
-#if _RAKNET_SUPPORT_NatTypeDetectionClient==1
+
+#if _RAKNET_SUPPORT_NatTypeDetectionClient == 1
 
 #ifndef __NAT_TYPE_DETECTION_CLIENT_H
 #define __NAT_TYPE_DETECTION_CLIENT_H
@@ -31,8 +32,9 @@
 namespace RakNet
 {
 /// Forward declarations
-class RakPeerInterface;
-struct Packet;
+    class RakPeerInterface;
+
+    struct Packet;
 
     /// \brief Client code for NatTypeDetection
     /// \details See NatTypeDetectionServer.h for algorithm
@@ -67,18 +69,18 @@ struct Packet;
         /// \internal For plugin handling
         virtual PluginReceiveResult OnReceive(Packet *packet);
 
-        virtual void OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );
+        virtual void OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason);
         virtual void OnRakPeerShutdown(void);
         virtual void OnDetach(void);
 
         virtual void OnRNS2Recv(RNS2RecvStruct *recvStruct);
-        virtual void DeallocRNS2RecvStruct(RNS2RecvStruct *s, const char *file, unsigned int line);
-        virtual RNS2RecvStruct *AllocRNS2RecvStruct(const char *file, unsigned int line);
+        virtual void DeallocRNS2RecvStruct(RNS2RecvStruct *s);
+        virtual RNS2RecvStruct *AllocRNS2RecvStruct();
     protected:
-        DataStructures::Queue<RNS2RecvStruct*> bufferedPackets;
+        DataStructures::Queue<RNS2RecvStruct *> bufferedPackets;
         SimpleMutex bufferedPacketsMutex;
 
-        RakNetSocket2* c2;
+        RakNetSocket2 *c2;
         //unsigned short c2Port;
         void Shutdown(void);
         void OnCompletion(NATTypeDetectionResult result);

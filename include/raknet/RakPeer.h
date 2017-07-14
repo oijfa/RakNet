@@ -158,7 +158,7 @@ public:
     /// \return CONNECTION_ATTEMPT_STARTED on successful initiation. Otherwise, an appropriate enumeration indicating failure.
     /// \note CONNECTION_ATTEMPT_STARTED does not mean you are already connected!
     /// \note It is possible to immediately get back ID_CONNECTION_ATTEMPT_FAILED if you exceed the maxConnections parameter passed to Startup(). This could happen if you call CloseConnection() with sendDisconnectionNotificaiton true, then immediately call Connect() before the connection has closed.
-    ConnectionAttemptResult Connect( const char* host, unsigned short remotePort, const char *passwordData, int passwordDataLength, PublicKey *publicKey=0, unsigned connectionSocketIndex=0, unsigned sendConnectionAttemptCount=6, unsigned timeBetweenSendConnectionAttemptsMS=1000, RakNet::TimeMS timeoutTime=0 );
+    ConnectionAttemptResult Connect( const char* host, unsigned short remotePort, const char *passwordData, size_t passwordDataLength, PublicKey *publicKey=0, unsigned connectionSocketIndex=0, unsigned sendConnectionAttemptCount=6, unsigned timeBetweenSendConnectionAttemptsMS=1000, RakNet::TimeMS timeoutTime=0 );
 
     /// \brief Connect to the specified host (ip or domain name) and server port.
     /// \param[in] host Either a dotted IP address or a domain name.
@@ -171,7 +171,7 @@ public:
     /// \param[in] timeoutTime Time to elapse before dropping the connection if a reliable message could not be sent. 0 to use the default from SetTimeoutTime(UNASSIGNED_SYSTEM_ADDRESS);
     /// \return CONNECTION_ATTEMPT_STARTED on successful initiation. Otherwise, an appropriate enumeration indicating failure.
     /// \note CONNECTION_ATTEMPT_STARTED does not mean you are already connected!
-    virtual ConnectionAttemptResult ConnectWithSocket(const char* host, unsigned short remotePort, const char *passwordData, int passwordDataLength, RakNetSocket2* socket, PublicKey *publicKey=0, unsigned sendConnectionAttemptCount=6, unsigned timeBetweenSendConnectionAttemptsMS=1000, RakNet::TimeMS timeoutTime=0);
+    virtual ConnectionAttemptResult ConnectWithSocket(const char* host, unsigned short remotePort, const char *passwordData, size_t passwordDataLength, RakNetSocket2* socket, PublicKey *publicKey=0, unsigned sendConnectionAttemptCount=6, unsigned timeBetweenSendConnectionAttemptsMS=1000, RakNet::TimeMS timeoutTime=0);
 
     /* /// \brief Connect to the specified network ID (Platform specific console function)
     /// \details Does built-in NAT traversal
@@ -218,7 +218,9 @@ public:
     /// \param[in] broadcast True to send this packet to all connected systems. If true, then systemAddress specifies who not to send the packet to.
     /// \param[in] forceReceipt If 0, will automatically determine the receipt number to return. If non-zero, will return what you give it.
     /// \return 0 on bad input. Otherwise a number that identifies this message. If \a reliability is a type that returns a receipt, on a later call to Receive() you will get ID_SND_RECEIPT_ACKED or ID_SND_RECEIPT_LOSS with bytes 1-4 inclusive containing this number
-    uint32_t Send( const char *data, const int length, PacketPriority priority, PacketReliability reliability, char orderingChannel, const AddressOrGUID systemIdentifier, bool broadcast, uint32_t forceReceiptNumber=0 );
+    uint32_t Send(const char *data, const size_t length, PacketPriority priority, PacketReliability reliability,
+                  char orderingChannel, const AddressOrGUID systemIdentifier, bool broadcast,
+                  uint32_t forceReceiptNumber = 0);
 
     /// \brief "Send" to yourself rather than a remote system.
     /// \details The message will be processed through the plugins and returned to the game as usual.
@@ -226,7 +228,7 @@ public:
     /// \note The first byte should be a message identifier starting at ID_USER_PACKET_ENUM
     /// \param[in] data Block of data to send.
     /// \param[in] length Size in bytes of the data to send.
-    void SendLoopback( const char *data, const int length );
+    void SendLoopback(const char *data, const size_t length);
 
     /// \brief Sends a block of data to the specified system that you are connected to.
     ///
@@ -262,7 +264,7 @@ public:
     /// \param[in] broadcast True to send this packet to all connected systems. If true, then systemAddress specifies who not to send the packet to.
     /// \param[in] forceReceipt If 0, will automatically determine the receipt number to return. If non-zero, will return what you give it.
     /// \return 0 on bad input. Otherwise a number that identifies this message. If \a reliability is a type that returns a receipt, on a later call to Receive() you will get ID_SND_RECEIPT_ACKED or ID_SND_RECEIPT_LOSS with bytes 1-4 inclusive containing this number
-    uint32_t SendList( const char **data, const int *lengths, const int numParameters, PacketPriority priority, PacketReliability reliability, char orderingChannel, const AddressOrGUID systemIdentifier, bool broadcast, uint32_t forceReceiptNumber=0 );
+    uint32_t SendList( const char **data, const size_t *lengths, const int numParameters, PacketPriority priority, PacketReliability reliability, char orderingChannel, const AddressOrGUID systemIdentifier, bool broadcast, uint32_t forceReceiptNumber=0 );
 
     /// \brief Gets a message from the incoming message queue.
     /// \details Use DeallocatePacket() to deallocate the message after you are done with it.
@@ -553,7 +555,7 @@ public:
     /// You can add it to the receive buffer with PushBackPacket
     /// \param[in] dataSize How many bytes to allocate for the buffer
     /// \return A packet.
-    Packet* AllocatePacket(unsigned dataSize);
+    Packet* AllocatePacket(size_t dataSize);
 
     /// \brief Get the socket used with a particular active connection.
     /// The smart pointer reference counts the RakNetSocket object, so the socket will remain active as long as the smart pointer does, even if RakNet were to shutdown or close the connection.
@@ -647,7 +649,7 @@ public:
     /// \internal
     bool SendOutOfBand(const char *host, unsigned short remotePort, const char *data, BitSize_t dataLength, unsigned connectionSocketIndex=0 );
 
-    // static Packet *AllocPacket(unsigned dataSize, const char *file, unsigned int line);
+    // static Packet *AllocPacket(unsigned dataSize);
 
     /// \internal
     /// \brief Holds the clock differences between systems, along with the ping
@@ -710,8 +712,8 @@ protected:
 
     //void RemoveFromRequestedConnectionsList( const SystemAddress systemAddress );
     // Two versions needed because some buggy compilers strip the last parameter if unused, and crashes
-    ConnectionAttemptResult SendConnectionRequest( const char* host, unsigned short remotePort, const char *passwordData, int passwordDataLength, PublicKey *publicKey, unsigned connectionSocketIndex, unsigned int extraData, unsigned sendConnectionAttemptCount, unsigned timeBetweenSendConnectionAttemptsMS, RakNet::TimeMS timeoutTime, RakNetSocket2* socket );
-    ConnectionAttemptResult SendConnectionRequest( const char* host, unsigned short remotePort, const char *passwordData, int passwordDataLength, PublicKey *publicKey, unsigned connectionSocketIndex, unsigned int extraData, unsigned sendConnectionAttemptCount, unsigned timeBetweenSendConnectionAttemptsMS, RakNet::TimeMS timeoutTime );
+    ConnectionAttemptResult SendConnectionRequest( const char* host, unsigned short remotePort, const char *passwordData, size_t passwordDataLength, PublicKey *publicKey, unsigned connectionSocketIndex, unsigned int extraData, unsigned sendConnectionAttemptCount, unsigned timeBetweenSendConnectionAttemptsMS, RakNet::TimeMS timeoutTime, RakNetSocket2* socket );
+    ConnectionAttemptResult SendConnectionRequest( const char* host, unsigned short remotePort, const char *passwordData, size_t passwordDataLength, PublicKey *publicKey, unsigned connectionSocketIndex, unsigned int extraData, unsigned sendConnectionAttemptCount, unsigned timeBetweenSendConnectionAttemptsMS, RakNet::TimeMS timeoutTime );
     ///Get the reliability layer associated with a systemAddress.
     /// \param[in] systemAddress The player identifier
     /// \return 0 if none
@@ -902,8 +904,8 @@ protected:
     DataStructures::Queue<RNS2RecvStruct*> bufferedPacketsQueue;
     RakNet::SimpleMutex bufferedPacketsQueueMutex;
 
-    virtual void DeallocRNS2RecvStruct(RNS2RecvStruct *s, const char *file, unsigned int line);
-    virtual RNS2RecvStruct *AllocRNS2RecvStruct(const char *file, unsigned int line);
+    virtual void DeallocRNS2RecvStruct(RNS2RecvStruct *s);
+    virtual RNS2RecvStruct *AllocRNS2RecvStruct();
     void SetupBufferedPackets(void);
     void PushBufferedPacket(RNS2RecvStruct * p);
     RNS2RecvStruct *PopBufferedPacket(void);
@@ -924,7 +926,7 @@ protected:
     // This stores the user send calls to be handled by the update thread.  This way we don't have thread contention over systemAddresss
     void CloseConnectionInternal( const AddressOrGUID& systemIdentifier, bool sendDisconnectionNotification, bool performImmediate, unsigned char orderingChannel, PacketPriority disconnectionNotificationPriority );
     void SendBuffered( const char *data, BitSize_t numberOfBitsToSend, PacketPriority priority, PacketReliability reliability, char orderingChannel, const AddressOrGUID systemIdentifier, bool broadcast, RemoteSystemStruct::ConnectMode connectionMode, uint32_t receipt );
-    void SendBufferedList( const char **data, const int *lengths, const int numParameters, PacketPriority priority, PacketReliability reliability, char orderingChannel, const AddressOrGUID systemIdentifier, bool broadcast, RemoteSystemStruct::ConnectMode connectionMode, uint32_t receipt );
+    void SendBufferedList( const char **data, const size_t *lengths, unsigned numParameters, PacketPriority priority, PacketReliability reliability, char orderingChannel, const AddressOrGUID systemIdentifier, bool broadcast, RemoteSystemStruct::ConnectMode connectionMode, uint32_t receipt );
     bool SendImmediate( char *data, BitSize_t numberOfBitsToSend, PacketPriority priority, PacketReliability reliability, char orderingChannel, const AddressOrGUID systemIdentifier, bool broadcast, bool useCallerDataAllocation, RakNet::TimeUS currentTime, uint32_t receipt );
     //bool HandleBufferedRPC(BufferedCommandStruct *bcs, RakNet::TimeMS time);
     void ClearBufferedCommands(void);
@@ -994,8 +996,8 @@ protected:
 
     SimpleMutex packetReturnMutex;
     DataStructures::Queue<Packet*> packetReturnQueue;
-    Packet *AllocPacket(unsigned dataSize, const char *file, unsigned int line);
-    Packet *AllocPacket(unsigned dataSize, unsigned char *data, const char *file, unsigned int line);
+    Packet *AllocPacket(size_t dataSize);
+    Packet *AllocPacket(size_t dataSize, unsigned char *data);
 
     /// This is used to return a number to the user when they call Send identifying the message
     /// This number will be returned back with ID_SND_RECEIPT_ACKED or ID_SND_RECEIPT_LOSS and is only returned
@@ -1012,7 +1014,6 @@ protected:
     char my_public_key[cat::EasyHandshake::PUBLIC_KEY_BYTES];
     cat::ServerEasyHandshake *_server_handshake;
     cat::CookieJar *_cookie_jar;
-    bool InitializeClientSecurity(RequestedConnectionStruct *rcs, const char *public_key);
 #endif
     virtual void OnRNS2Recv(RNS2RecvStruct *recvStruct);
     void FillIPList(void);

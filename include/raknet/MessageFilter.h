@@ -54,7 +54,7 @@ struct FilterSet
 };
 
 /// \internal Has to be public so some of the shittier compilers can use it.
-int RAK_DLL_EXPORT FilterSetComp( const int &key, FilterSet * const &data );
+    int RAK_DLL_EXPORT FilterSetComp( const int &key, FilterSet * const &data );
 
 /// \internal Has to be public so some of the shittier compilers can use it.
 struct FilteredSystem
@@ -138,7 +138,7 @@ public:
     /// \param[in] banOnExceed True or false to ban the system, or not, when \a allowedTimeMS is exceeded
     /// \param[in] banTimeMS Passed to the milliseconds parameter of RakPeer::AddToBanList.
     /// \param[in] filterSetID A user defined ID to represent a filter set.  If no filter with this ID exists, one will be created with default settings.
-    void SetFilterMaxTime(int allowedTimeMS, bool banOnExceed, RakNet::TimeMS banTimeMS, int filterSetID);
+    void SetFilterMaxTime(TimeMS allowedTimeMS, bool banOnExceed, RakNet::TimeMS banTimeMS, int filterSetID);
 
     /// Get the filterSetID a system is using.  Returns -1 for none.
     /// \param[in] addressOrGUID The system we are referring to
@@ -154,11 +154,11 @@ public:
     /// Returns the number of systems subscribed to a particular filter set
     /// Using anything other than -1 for \a filterSetID is slow, so you should store the returned value.
     /// \param[in] filterSetID The filter set to limit to.  Use -1 for none (just returns the total number of filter systems in that case).
-    unsigned GetSystemCount(int filterSetID) const;
+    size_t GetSystemCount(int filterSetID) const;
 
     /// Returns the total number of filter sets.
     /// \return The total number of filter sets.
-    unsigned GetFilterSetCount(void) const;
+    size_t GetFilterSetCount(void) const;
 
     /// Returns the ID of a filter set, by index
     /// \param[in] An index between 0 and GetFilterSetCount()-1 inclusive

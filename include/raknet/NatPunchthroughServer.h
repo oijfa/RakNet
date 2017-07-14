@@ -138,8 +138,6 @@ protected:
     void OnGetMostRecentPort(Packet *packet);
     void OnClientReady(Packet *packet);
 
-    void SendTimestamps(void);
-    void StartPendingPunchthrough(void);
     void StartPunchthroughForUser(User*user);
     uint16_t sessionId;
     NatPunchthroughServerDebugInterface *natPunchthroughServerDebugInterface;

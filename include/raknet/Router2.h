@@ -129,10 +129,10 @@ public:
         RakNetGUID endpointGuid;
         RakNetGUID lastRequestedForwardingSystem;
         bool returnConnectionLostOnFailure;
-        unsigned int GetGuidIndex(RakNetGUID guid);
+        size_t GetGuidIndex(RakNetGUID guid);
     };
 
-    unsigned int GetConnectionRequestIndex(RakNetGUID endpointGuid);
+    size_t GetConnectionRequestIndex(RakNetGUID endpointGuid);
 
     struct MiniPunchRequest
     {
@@ -160,7 +160,7 @@ public:
 protected:
 
     bool UpdateForwarding(ConnnectRequest* connectionRequest);
-    void RemoveConnectionRequest(unsigned int connectionRequestIndex);
+    void RemoveConnectionRequest(size_t connectionRequestIndex);
     void RequestForwarding(ConnnectRequest* connectionRequest);
     void OnQueryForwarding(Packet *packet);
     void OnQueryForwardingReply(Packet *packet);
@@ -174,7 +174,7 @@ protected:
     bool ConnectInternal(RakNetGUID endpointGuid, bool returnConnectionLostOnFailure);
 
     UDPForwarder *udpForwarder;
-    int maximumForwardingRequests;
+    size_t maximumForwardingRequests;
     SimpleMutex connectionRequestsMutex, miniPunchesInProgressMutex, forwardedConnectionListMutex;
     DataStructures::List<ConnnectRequest*> connectionRequests;
     DataStructures::List<MiniPunchRequest> miniPunchesInProgress;
