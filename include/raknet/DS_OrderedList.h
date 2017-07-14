@@ -45,19 +45,19 @@ namespace DataStructures
         /// If the data type has comparison operators already defined then you can just use defaultComparison
         bool HasData(const key_type &key, int (*cf)(const key_type&, const data_type&)=default_comparison_function) const;
         // GetIndexFromKey returns where the insert should go at the same time checks if it is there
-        unsigned GetIndexFromKey(const key_type &key, bool *objectExists, int (*cf)(const key_type&, const data_type&)=default_comparison_function) const;
+        size_t GetIndexFromKey(const key_type &key, bool *objectExists, int (*cf)(const key_type&, const data_type&)=default_comparison_function) const;
         data_type GetElementFromKey(const key_type &key, int (*cf)(const key_type&, const data_type&)=default_comparison_function) const;
         bool GetElementFromKey(const key_type &key, data_type &element, int (*cf)(const key_type&, const data_type&)=default_comparison_function) const;
-        unsigned Insert(const key_type &key, const data_type &data, bool assertOnDuplicate, const char *file, unsigned int line, int (*cf)(const key_type&, const data_type&)=default_comparison_function);
-        unsigned Remove(const key_type &key, int (*cf)(const key_type&, const data_type&)=default_comparison_function);
-        unsigned RemoveIfExists(const key_type &key, int (*cf)(const key_type&, const data_type&)=default_comparison_function);
-        data_type& operator[] ( const unsigned int position ) const;
-        void RemoveAtIndex(const unsigned index);
-        void InsertAtIndex(const data_type &data, const unsigned index, const char *file, unsigned int line);
-        void InsertAtEnd(const data_type &data, const char *file, unsigned int line);
-        void RemoveFromEnd(const unsigned num=1);
-        void Clear(bool doNotDeallocate, const char *file, unsigned int line);
-        unsigned Size(void) const;
+        size_t Insert(const key_type &key, const data_type &data, bool assertOnDuplicate, int (*cf)(const key_type&, const data_type&)=default_comparison_function);
+        size_t Remove(const key_type &key, int (*cf)(const key_type&, const data_type&)=default_comparison_function);
+        size_t RemoveIfExists(const key_type &key, int (*cf)(const key_type&, const data_type&)=default_comparison_function);
+        data_type& operator[] (size_t position) const;
+        void RemoveAtIndex(size_t index);
+        void InsertAtIndex(const data_type &data, size_t index);
+        void InsertAtEnd(const data_type &data);
+        void RemoveFromEnd(size_t num=1);
+        void Clear(bool doNotDeallocate);
+        size_t Size(void) const;
 
     protected:
         DataStructures::List<data_type> orderedList;
@@ -71,7 +71,7 @@ namespace DataStructures
     template <class key_type, class data_type, int (*default_comparison_function)(const key_type&, const data_type&)>
     OrderedList<key_type, data_type, default_comparison_function>::~OrderedList()
     {
-        Clear(false, _FILE_AND_LINE_);
+        Clear(false);
     }
 
     template <class key_type, class data_type, int (*default_comparison_function)(const key_type&, const data_type&)>
@@ -99,8 +99,7 @@ namespace DataStructures
     data_type OrderedList<key_type, data_type, default_comparison_function>::GetElementFromKey(const key_type &key, int (*cf)(const key_type&, const data_type&)) const
     {
         bool objectExists;
-        unsigned index;
-        index = GetIndexFromKey(key, &objectExists, cf);
+        size_t index = GetIndexFromKey(key, &objectExists, cf);
         RakAssert(objectExists);
         return orderedList[index];
     }
@@ -108,107 +107,97 @@ namespace DataStructures
     bool OrderedList<key_type, data_type, default_comparison_function>::GetElementFromKey(const key_type &key, data_type &element, int (*cf)(const key_type&, const data_type&)) const
     {
         bool objectExists;
-        unsigned index;
-        index = GetIndexFromKey(key, &objectExists, cf);
+        size_t index = GetIndexFromKey(key, &objectExists, cf);
         if (objectExists)
             element = orderedList[index];
         return objectExists;
     }
     template <class key_type, class data_type, int (*default_comparison_function)(const key_type&, const data_type&)>
-    unsigned OrderedList<key_type, data_type, default_comparison_function>::GetIndexFromKey(const key_type &key, bool *objectExists, int (*cf)(const key_type&, const data_type&)) const
+    size_t OrderedList<key_type, data_type, default_comparison_function>::GetIndexFromKey(const key_type &key, bool *objectExists, int (*cf)(const key_type&, const data_type&)) const
     {
-        int index, upperBound, lowerBound;
-        int res;
-
         if (orderedList.Size()==0)
         {
             *objectExists=false;
             return 0;
         }
 
-        upperBound=(int)orderedList.Size()-1;
-        lowerBound=0;
-        index = (int)orderedList.Size()/2;
+        size_t upperBound = orderedList.Size()-1;
+        size_t lowerBound = 0;
+        size_t index = orderedList.Size()/2;
 
 #ifdef _MSC_VER
     #pragma warning( disable : 4127 ) // warning C4127: conditional expression is constant
 #endif
         while (1)
         {
-            res = cf(key,orderedList[index]);
-            if (res==0)
+            size_t res = cf(key, orderedList[index]);
+            if (res == 0)
             {
-                *objectExists=true;
-                return (unsigned)index;
+                *objectExists = true;
+                return (unsigned) index;
             }
-            else if (res<0)
-            {
-                upperBound=index-1;
-            }
-            else// if (res>0)
-            {
+            else if (res < 0)
+                upperBound = index - 1;
+            else // if (res>0)
+                lowerBound = index + 1;
 
-                lowerBound=index+1;
-            }
+            index = lowerBound + (upperBound - lowerBound) / 2;
 
-            index=lowerBound+(upperBound-lowerBound)/2;
-
-            if (lowerBound>upperBound)
+            if (lowerBound > upperBound)
             {
-                *objectExists=false;
-                return (unsigned)lowerBound; // No match
+                *objectExists = false;
+                return (unsigned) lowerBound; // No match
             }
 
-            if (index < 0 || index >= (int) orderedList.Size())
+            if (index < 0 || index >= orderedList.Size())
             {
                 // This should never hit unless the comparison function was inconsistent
                 RakAssert(index && 0);
-                *objectExists=false;
+                *objectExists = false;
                 return 0;
             }
         }
     }
 
     template <class key_type, class data_type, int (*default_comparison_function)(const key_type&, const data_type&)>
-    unsigned OrderedList<key_type, data_type, default_comparison_function>::Insert(const key_type &key, const data_type &data, bool assertOnDuplicate, const char *file, unsigned int line, int (*cf)(const key_type&, const data_type&))
+    size_t OrderedList<key_type, data_type, default_comparison_function>::Insert(const key_type &key, const data_type &data, bool assertOnDuplicate, int (*cf)(const key_type&, const data_type&))
     {
         (void) assertOnDuplicate;
         bool objectExists;
-        unsigned index;
-        index = GetIndexFromKey(key, &objectExists, cf);
+        size_t index = GetIndexFromKey(key, &objectExists, cf);
 
         // Don't allow duplicate insertion.
         if (objectExists)
         {
             // This is usually a bug!
-            RakAssert(assertOnDuplicate==false);
-            return (unsigned)-1;
+            RakAssert(!assertOnDuplicate);
+            return (size_t)-1;
         }
 
         if (index>=orderedList.Size())
         {
-            orderedList.Insert(data, file, line);
+            orderedList.Insert(data);
             return orderedList.Size()-1;
         }
         else
         {
-            orderedList.Insert(data,index, file, line);
+            orderedList.Insert(data,index);
             return index;
         }
     }
 
     template <class key_type, class data_type, int (*default_comparison_function)(const key_type&, const data_type&)>
-    unsigned OrderedList<key_type, data_type, default_comparison_function>::Remove(const key_type &key, int (*cf)(const key_type&, const data_type&))
+    size_t OrderedList<key_type, data_type, default_comparison_function>::Remove(const key_type &key, int (*cf)(const key_type&, const data_type&))
     {
         bool objectExists;
-        unsigned index;
+        size_t index;
         index = GetIndexFromKey(key, &objectExists, cf);
 
         // Can't find the element to remove if this assert hits
     //    RakAssert(objectExists==true);
-        if (objectExists==false)
+        if (!objectExists)
         {
-            RakAssert(objectExists==true);
+            RakAssert(objectExists);
             return 0;
         }
 
@@ -217,14 +206,13 @@ namespace DataStructures
     }
 
     template <class key_type, class data_type, int (*default_comparison_function)(const key_type&, const data_type&)>
-    unsigned OrderedList<key_type, data_type, default_comparison_function>::RemoveIfExists(const key_type &key, int (*cf)(const key_type&, const data_type&))
+    size_t OrderedList<key_type, data_type, default_comparison_function>::RemoveIfExists(const key_type &key, int (*cf)(const key_type&, const data_type&))
     {
         bool objectExists;
-        unsigned index;
-        index = GetIndexFromKey(key, &objectExists, cf);
+        size_t index = GetIndexFromKey(key, &objectExists, cf);
 
         // Can't find the element to remove if this assert hits
-        if (objectExists==false)
+        if (!objectExists)
             return 0;
 
         orderedList.RemoveAtIndex(index);
@@ -232,43 +220,43 @@ namespace DataStructures
     }
 
     template <class key_type, class data_type, int (*default_comparison_function)(const key_type&, const data_type&)>
-    void OrderedList<key_type, data_type, default_comparison_function>::RemoveAtIndex(const unsigned index)
+    void OrderedList<key_type, data_type, default_comparison_function>::RemoveAtIndex(size_t index)
     {
         orderedList.RemoveAtIndex(index);
     }
 
     template <class key_type, class data_type, int (*default_comparison_function)(const key_type&, const data_type&)>
-    void OrderedList<key_type, data_type, default_comparison_function>::InsertAtIndex(const data_type &data, const unsigned index, const char *file, unsigned int line)
+    void OrderedList<key_type, data_type, default_comparison_function>::InsertAtIndex(const data_type &data, size_t index)
     {
-        orderedList.Insert(data, index, file, line);
+        orderedList.Insert(data, index);
     }
 
     template <class key_type, class data_type, int (*default_comparison_function)(const key_type&, const data_type&)>
-        void OrderedList<key_type, data_type, default_comparison_function>::InsertAtEnd(const data_type &data, const char *file, unsigned int line)
+        void OrderedList<key_type, data_type, default_comparison_function>::InsertAtEnd(const data_type &data)
     {
-        orderedList.Insert(data, file, line);
+        orderedList.Insert(data);
     }
 
     template <class key_type, class data_type, int (*default_comparison_function)(const key_type&, const data_type&)>
-        void OrderedList<key_type, data_type, default_comparison_function>::RemoveFromEnd(const unsigned num)
+        void OrderedList<key_type, data_type, default_comparison_function>::RemoveFromEnd(size_t num)
     {
         orderedList.RemoveFromEnd(num);
     }
 
     template <class key_type, class data_type, int (*default_comparison_function)(const key_type&, const data_type&)>
-    void OrderedList<key_type, data_type, default_comparison_function>::Clear(bool doNotDeallocate, const char *file, unsigned int line)
+    void OrderedList<key_type, data_type, default_comparison_function>::Clear(bool doNotDeallocate)
     {
-        orderedList.Clear(doNotDeallocate, file, line);
+        orderedList.Clear(doNotDeallocate);
     }
 
     template <class key_type, class data_type, int (*default_comparison_function)(const key_type&, const data_type&)>
-    data_type& OrderedList<key_type, data_type, default_comparison_function>::operator[]( const unsigned int position ) const
+    data_type& OrderedList<key_type, data_type, default_comparison_function>::operator[](size_t position) const
     {
         return orderedList[position];
     }
 
     template <class key_type, class data_type, int (*default_comparison_function)(const key_type&, const data_type&)>
-    unsigned OrderedList<key_type, data_type, default_comparison_function>::Size(void) const
+    size_t OrderedList<key_type, data_type, default_comparison_function>::Size(void) const
     {
         return orderedList.Size();
     }

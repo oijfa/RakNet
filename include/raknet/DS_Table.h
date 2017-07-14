@@ -44,16 +44,16 @@ namespace DataStructures
         enum ColumnType
         {
             // Cell::i used
-            NUMERIC,
+                    NUMERIC,
 
             // Cell::c used to hold a null terminated string.
-            STRING,
+                    STRING,
 
             // Cell::c holds data.  Cell::i holds data length of c in bytes.
-            BINARY,
+                    BINARY,
 
             // Cell::c holds data.  Not deallocated. Set manually by assigning ptr.
-            POINTER,
+                    POINTER,
         };
 
 
@@ -76,10 +76,10 @@ namespace DataStructures
             void Set(const char *input);
 
             /// Binary
-            void Set(const char *input, int inputLength);
+            void Set(const char *input, size_t inputLength);
 
             /// Pointer
-            void SetPtr(void* p);
+            void SetPtr(void *p);
 
             /// Numeric
             void Get(int *output);
@@ -89,18 +89,18 @@ namespace DataStructures
             void Get(char *output);
 
             /// Binary
-            void Get(char *output, int *outputLength);
+            void Get(char *output, size_t *outputLength);
 
             RakNet::RakString ToString(ColumnType columnType);
 
             // assignment operator and copy constructor
-            Cell& operator = ( const Cell& input );
-            Cell( const Cell & input);
+            Cell &operator=(const Cell &input);
+            Cell(const Cell &input);
 
             ColumnType EstimateColumnType(void) const;
 
             bool isEmpty;
-            double i;
+            size_t i;
             char *c;
             void *ptr;
         };
@@ -112,7 +112,7 @@ namespace DataStructures
         {
             ColumnDescriptor();
             ~ColumnDescriptor();
-            ColumnDescriptor(const char cn[_TABLE_MAX_COLUMN_NAME_LENGTH],ColumnType ct);
+            ColumnDescriptor(const char cn[_TABLE_MAX_COLUMN_NAME_LENGTH], ColumnType ct);
 
             char columnName[_TABLE_MAX_COLUMN_NAME_LENGTH];
             ColumnType columnType;
@@ -123,16 +123,16 @@ namespace DataStructures
         struct RAK_DLL_EXPORT Row
         {
             // list of cells
-            DataStructures::List<Cell*> cells;
+            DataStructures::List<Cell *> cells;
 
             /// Numeric
-            void UpdateCell(unsigned columnIndex, double value);
+            void UpdateCell(size_t columnIndex, double value);
 
             /// String
-            void UpdateCell(unsigned columnIndex, const char *str);
+            void UpdateCell(size_t columnIndex, const char *str);
 
             /// Binary
-            void UpdateCell(unsigned columnIndex, int byteLength, const char *data);
+            void UpdateCell(size_t columnIndex, size_t byteLength, const char *data);
         };
 
         // Operations to perform for cell comparison
@@ -154,11 +154,11 @@ namespace DataStructures
         {
             FilterQuery();
             ~FilterQuery();
-            FilterQuery(unsigned column, Cell *cell, FilterQueryType op);
+            FilterQuery(size_t column, Cell *cell, FilterQueryType op);
 
             // If columnName is specified, columnIndex will be looked up using it.
             char columnName[_TABLE_MAX_COLUMN_NAME_LENGTH];
-            unsigned columnIndex;
+            size_t columnIndex;
             Cell *cellValue;
             FilterQueryType operation;
         };
@@ -181,6 +181,9 @@ namespace DataStructures
             SortQueryType operation;
         };
 
+        typedef DataStructures::BPlusTree<size_t, Row *, _TABLE_BPLUS_TREE_ORDER> RowType;
+        typedef DataStructures::Page<size_t, Row *, _TABLE_BPLUS_TREE_ORDER> PageType;
+
         // Constructor
         Table();
 
@@ -191,36 +194,36 @@ namespace DataStructures
         /// \param[in] columnName The name of the column
         /// \param[in] columnType What type of data this column will hold
         /// \return The index of the new column
-        unsigned AddColumn(const char columnName[_TABLE_MAX_COLUMN_NAME_LENGTH], ColumnType columnType);
+        size_t AddColumn(const char columnName[_TABLE_MAX_COLUMN_NAME_LENGTH], ColumnType columnType);
 
         /// \brief Removes a column by index
         /// \param[in] columnIndex The index of the column to remove
-        void RemoveColumn(unsigned columnIndex);
+        void RemoveColumn(size_t columnIndex);
 
         /// \brief Gets the index of a column by name
         /// \details Column indices are stored in the order they are added.
         /// \param[in] columnName The name of the column
         /// \return The index of the column, or (unsigned)-1 if no such column
-        unsigned ColumnIndex(char columnName[_TABLE_MAX_COLUMN_NAME_LENGTH]) const;
-        unsigned ColumnIndex(const char *columnName) const;
+        size_t ColumnIndex(char columnName[_TABLE_MAX_COLUMN_NAME_LENGTH]) const;
+        size_t ColumnIndex(const char *columnName) const;
 
         /// \brief Gives the string name of the column at a certain index
         /// \param[in] index The index of the column
         /// \return The name of the column, or 0 if an invalid index
-        char* ColumnName(unsigned index) const;
+        char *ColumnName(size_t index) const;
 
         /// \brief Returns the type of a column, referenced by index
         /// \param[in] index The index of the column
         /// \return The type of the column
-        ColumnType GetColumnType(unsigned index) const;
+        ColumnType GetColumnType(size_t index) const;
 
         /// Returns the number of columns
         /// \return The number of columns in the table
-        unsigned GetColumnCount(void) const;
+        size_t GetColumnCount(void) const;
 
         /// Returns the number of rows
         /// \return The number of rows in the table
-        unsigned GetRowCount(void) const;
+        size_t GetRowCount(void) const;
 
         /// \brief Adds a row to the table
         /// \details New rows are added with empty values for all cells.  However, if you specify initialCelLValues you can specify initial values
@@ -231,14 +234,14 @@ namespace DataStructures
         /// \param[in] rowId The UNIQUE primary key for the row.  This can never be changed.
         /// \param[in] initialCellValues Initial values to give the row (optional)
         /// \return The newly added row
-        Table::Row* AddRow(unsigned rowId);
-        Table::Row* AddRow(unsigned rowId, DataStructures::List<Cell> &initialCellValues);
-        Table::Row* AddRow(unsigned rowId, DataStructures::List<Cell*> &initialCellValues, bool copyCells=false);
+        Table::Row *AddRow(size_t rowId);
+        Table::Row *AddRow(size_t rowId, DataStructures::List<Cell> &initialCellValues);
+        Table::Row *AddRow(size_t rowId, DataStructures::List<Cell *> &initialCellValues, bool copyCells = false);
 
         /// \brief Removes a row specified by rowId.
         /// \param[in] rowId The ID of the row
         /// \return true if the row was deleted. False if not.
-        bool RemoveRow(unsigned rowId);
+        bool RemoveRow(size_t rowId);
 
         /// \brief Removes all the rows with IDs that the specified table also has.
         /// \param[in] tableContainingRowIDs The IDs of the rows
@@ -250,31 +253,31 @@ namespace DataStructures
         /// \param[in] rowId The ID of the row
         /// \param[in] columnIndex The column of the cell
         /// \param[in] value The data to set
-        bool UpdateCell(unsigned rowId, unsigned columnIndex, int value);
-        bool UpdateCell(unsigned rowId, unsigned columnIndex, char *str);
-        bool UpdateCell(unsigned rowId, unsigned columnIndex, int byteLength, char *data);
-        bool UpdateCellByIndex(unsigned rowIndex, unsigned columnIndex, int value);
-        bool UpdateCellByIndex(unsigned rowIndex, unsigned columnIndex, char *str);
-        bool UpdateCellByIndex(unsigned rowIndex, unsigned columnIndex, int byteLength, char *data);
+        bool UpdateCell(size_t rowId, size_t columnId, int value);
+        bool UpdateCell(size_t rowId, size_t columnId, char *str);
+        bool UpdateCell(size_t rowId, size_t columnId, size_t byteLength, char *data);
+        bool UpdateCellByIndex(size_t rowIndex, size_t columnIndex, int value);
+        bool UpdateCellByIndex(size_t rowIndex, size_t columnIndex, char *str);
+        bool UpdateCellByIndex(size_t rowIndex, size_t columnIndex, size_t byteLength, char *data);
 
         /// \brief Note this is much less efficient to call than GetRow, then working with the cells directly.
         /// Numeric, string, binary
-        void GetCellValueByIndex(unsigned rowIndex, unsigned columnIndex, int *output);
-        void GetCellValueByIndex(unsigned rowIndex, unsigned columnIndex, char *output);
-        void GetCellValueByIndex(unsigned rowIndex, unsigned columnIndex, char *output, int *outputLength);
+        void GetCellValueByIndex(size_t rowIndex, size_t columnIndex, int *output);
+        void GetCellValueByIndex(size_t rowIndex, size_t columnIndex, char *output);
+        void GetCellValueByIndex(size_t rowIndex, size_t columnIndex, char *output, size_t *outputLength);
 
         /// \brief Gets a row.  More efficient to do this and access Row::cells than to repeatedly call GetCell.
         /// You can also update cells in rows from this function.
         /// \param[in] rowId The ID of the row
         /// \return The desired row, or 0 if no such row.
-        Row* GetRowByID(unsigned rowId) const;
+        Row *GetRowByID(size_t rowId) const;
 
         /// \brief Gets a row at a specific index.
         /// rowIndex should be less than GetRowCount()
         /// \param[in] rowIndex The index of the row
         /// \param[out] key The ID of the row returned
         /// \return The desired row, or 0 if no such row.
-        Row* GetRowByIndex(unsigned rowIndex, unsigned *key) const;
+        Row *GetRowByIndex(size_t rowIndex, size_t *key) const;
 
         /// \brief Queries the table, optionally returning only a subset of columns and rows.
         /// \param[in] columnSubset An array of column indices.  Only columns in this array are returned.  Pass 0 for all columns
@@ -284,7 +287,8 @@ namespace DataStructures
         /// \param[in] rowIds An arrow of row IDs.  Only these rows with these IDs are returned.  Pass 0 for all rows.
         /// \param[in] numRowIDs The number of elements in \a rowIds
         /// \param[out] result The result of the query.  If no rows are returned, the table will only have columns.
-        void QueryTable(unsigned *columnIndicesSubset, unsigned numColumnSubset, FilterQuery *inclusionFilters, unsigned numInclusionFilters, unsigned *rowIds, unsigned numRowIDs, Table *result);
+        void QueryTable(size_t *columnIndicesSubset, size_t numColumnSubset, FilterQuery *inclusionFilters,
+                        size_t numInclusionFilters, size_t *rowIds, size_t numRowIDs, Table *result);
 
         /// \brief Sorts the table by rows
         /// \details You can sort the table in ascending or descending order on one or more columns
@@ -293,7 +297,7 @@ namespace DataStructures
         /// \param[in] sortQueries A list of SortQuery structures, defining the sorts to perform on the table
         /// \param[in] numColumnSubset The number of elements in \a numSortQueries
         /// \param[out] out The address of an array of Rows, which will receive the sorted output.  The array must be long enough to contain all returned rows, up to GetRowCount()
-        void SortTable(Table::SortQuery *sortQueries, unsigned numSortQueries, Table::Row** out);
+        void SortTable(Table::SortQuery *sortQueries, size_t numSortQueries, Table::Row **out);
 
         /// \brief Frees all memory in the table.
         void Clear(void);
@@ -302,7 +306,7 @@ namespace DataStructures
         /// \param[out] out A pointer to an array of bytes which will hold the output.
         /// \param[in] outLength The size of the \a out array
         /// \param[in] columnDelineator What character to print to delineate columns
-        void PrintColumnHeaders(char *out, int outLength, char columnDelineator) const;
+        void PrintColumnHeaders(char *out, size_t outLength, char columnDelineator) const;
 
         /// \brief Writes a text representation of the row to \a out.
         /// \param[out] out A pointer to an array of bytes which will hold the output.
@@ -310,33 +314,36 @@ namespace DataStructures
         /// \param[in] columnDelineator What character to print to delineate columns
         /// \param[in] printDelineatorForBinary Binary output is not printed.  True to still print the delineator.
         /// \param[in] inputRow The row to print
-        void PrintRow(char *out, int outLength, char columnDelineator, bool printDelineatorForBinary, Table::Row* inputRow) const;
+        void PrintRow(char *out, size_t outLength, char columnDelineator, bool printDelineatorForBinary,
+                      Table::Row *inputRow) const;
 
         /// \brief Direct access to make things easier.
-        const DataStructures::List<ColumnDescriptor>& GetColumns(void) const;
+        const DataStructures::List<ColumnDescriptor> &GetColumns(void) const;
 
         /// \brief Direct access to make things easier.
-        const DataStructures::BPlusTree<unsigned, Row*, _TABLE_BPLUS_TREE_ORDER>& GetRows(void) const;
+        const RowType &GetRows(void) const;
 
         /// \brief Get the head of a linked list containing all the row data.
-        DataStructures::Page<unsigned, Row*, _TABLE_BPLUS_TREE_ORDER> * GetListHead(void);
+        PageType *GetListHead(void);
 
         /// \brief Get the first free row id.
         /// This could be made more efficient.
-        unsigned GetAvailableRowId(void) const;
+        size_t GetAvailableRowId(void) const;
 
-        Table& operator = ( const Table& input );
+        Table &operator=(const Table &input);
 
     protected:
-        Table::Row* AddRowColumns(unsigned rowId, Row *row, DataStructures::List<unsigned> columnIndices);
+        Table::Row *AddRowColumns(size_t rowId, Row *row, DataStructures::List<size_t> columnIndices);
 
         void DeleteRow(Row *row);
 
-        void QueryRow(DataStructures::List<unsigned> &inclusionFilterColumnIndices, DataStructures::List<unsigned> &columnIndicesToReturn, unsigned key, Table::Row* row, FilterQuery *inclusionFilters, Table *result);
+        void QueryRow(DataStructures::List<size_t> &inclusionFilterColumnIndices,
+                      DataStructures::List<size_t> &columnIndicesToReturn, size_t key, Table::Row *row,
+                      FilterQuery *inclusionFilters, Table *result);
 
         // 16 is arbitrary and is the order of the BPlus tree.  Higher orders are better for searching while lower orders are better for
         // Insertions and deletions.
-        DataStructures::BPlusTree<unsigned, Row*, _TABLE_BPLUS_TREE_ORDER> rows;
+        RowType rows;
 
         // Columns in the table.
         DataStructures::List<ColumnDescriptor> columns;

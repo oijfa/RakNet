@@ -155,8 +155,7 @@ RakWString &RakWString::operator+=(const RakWString &right)
         return *this;
     size_t newCharLength = c_strCharLength + right.GetLength();
     wchar_t *newCStr;
-    bool isEmpty = IsEmpty();
-    if (isEmpty)
+    if (IsEmpty())
         newCStr = (wchar_t *) malloc((newCharLength + 1) * MAX_BYTES_PER_UNICODE_CHAR);
     else
         newCStr = (wchar_t *) realloc(c_str, (newCharLength + 1) * MAX_BYTES_PER_UNICODE_CHAR);
@@ -167,7 +166,7 @@ RakWString &RakWString::operator+=(const RakWString &right)
     }
     c_str = newCStr;
     c_strCharLength = newCharLength;
-    if (isEmpty)
+    if (IsEmpty())
         memcpy(newCStr, right.C_String(), (right.GetLength() + 1) * MAX_BYTES_PER_UNICODE_CHAR);
     else
         wcscat(c_str, right.C_String());
@@ -182,8 +181,7 @@ RakWString &RakWString::operator+=(const wchar_t *const right)
     size_t rightLength = wcslen(right);
     size_t newCharLength = c_strCharLength + rightLength;
     wchar_t *newCStr;
-    bool isEmpty = IsEmpty();
-    if (isEmpty)
+    if (IsEmpty())
         newCStr = (wchar_t *) malloc((newCharLength + 1) * MAX_BYTES_PER_UNICODE_CHAR);
     else
         newCStr = (wchar_t *) realloc(c_str, (newCharLength + 1) * MAX_BYTES_PER_UNICODE_CHAR);
@@ -194,7 +192,7 @@ RakWString &RakWString::operator+=(const wchar_t *const right)
     }
     c_str = newCStr;
     c_strCharLength = newCharLength;
-    if (isEmpty)
+    if (IsEmpty())
         memcpy(newCStr, right, (rightLength + 1) * MAX_BYTES_PER_UNICODE_CHAR);
     else
         wcscat(c_str, right);
@@ -365,9 +363,7 @@ bool RakWString::Deserialize(BitStream *bs)
         return true;
     }
     else
-    {
         return true;
-    }
 }
 
 bool RakWString::Deserialize(wchar_t *str, BitStream *bs)
@@ -402,9 +398,7 @@ bool RakWString::Deserialize(wchar_t *str, BitStream *bs)
         return true;
     }
     else
-    {
         wcscpy(str, L"");
-    }
     return true;
 }
 

@@ -27,14 +27,14 @@ namespace DataStructures
 {
     struct HashIndex
     {
-        unsigned int primaryIndex;
-        unsigned int secondaryIndex;
-        bool IsInvalid(void) const {return primaryIndex==(unsigned int) -1;}
-        void SetInvalid(void) {primaryIndex=(unsigned int) -1; secondaryIndex=(unsigned int) -1;}
+        size_t primaryIndex;
+        size_t secondaryIndex;
+        bool IsInvalid(void) const {return primaryIndex==(size_t) -1;}
+        void SetInvalid(void) {primaryIndex=(size_t) -1; secondaryIndex=(size_t) -1;}
     };
 
     /// \brief Using a string as a identifier for a node, store an allocated pointer to that node
-    template <class key_type, class data_type, unsigned int HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
+    template <class key_type, class data_type, size_t HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
     class RAK_DLL_EXPORT Hash
     {
     public:
@@ -44,20 +44,20 @@ namespace DataStructures
         // Destructor
         ~Hash();
 
-        void Push(key_type key, const data_type &input, const char *file, unsigned int line );
+        void Push(key_type key, const data_type &input );
         data_type* Peek(key_type key );
-        bool Pop(data_type& out, key_type key, const char *file, unsigned int line );
-        bool RemoveAtIndex(HashIndex index, const char *file, unsigned int line );
-        bool Remove(key_type key, const char *file, unsigned int line );
+        bool Pop(data_type& out, key_type key );
+        bool RemoveAtIndex(HashIndex index );
+        bool Remove(key_type key );
         HashIndex GetIndexOf(key_type key);
         bool HasData(key_type key);
         data_type& ItemAtIndex(const HashIndex &index);
         key_type  KeyAtIndex(const HashIndex &index);
-        void GetAsList(DataStructures::List<data_type> &itemList,DataStructures::List<key_type > &keyList,const char *file, unsigned int line) const;
-        unsigned int Size(void) const;
+        void GetAsList(DataStructures::List<data_type> &itemList,DataStructures::List<key_type > &keyList) const;
+        size_t Size(void) const;
 
         /// \brief Clear the list
-        void Clear( const char *file, unsigned int line );
+        void Clear(  );
 
         struct Node
         {
@@ -69,26 +69,26 @@ namespace DataStructures
         };
 
     protected:
-        void ClearIndex(unsigned int index,const char *file, unsigned int line);
+        void ClearIndex(size_t index);
         Node **nodeList;
-        unsigned int size;
+        size_t size;
     };
 
-    template <class key_type, class data_type, unsigned int HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
+    template <class key_type, class data_type, size_t HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
     Hash<key_type, data_type, HASH_SIZE, hashFunction>::Hash()
     {
         nodeList=0;
         size=0;
     }
 
-    template <class key_type, class data_type, unsigned int HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
+    template <class key_type, class data_type, size_t HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
     Hash<key_type, data_type, HASH_SIZE, hashFunction>::~Hash()
     {
-        Clear(_FILE_AND_LINE_);
+        Clear();
     }
 
-    template <class key_type, class data_type, unsigned int HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
-    void Hash<key_type, data_type, HASH_SIZE, hashFunction>::Push(key_type key, const data_type &input, const char *file, unsigned int line )
+    template <class key_type, class data_type, size_t HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
+    void Hash<key_type, data_type, HASH_SIZE, hashFunction>::Push(key_type key, const data_type &input )
     {
         unsigned long hashIndex = (*hashFunction)(key) % HASH_SIZE;
         if (nodeList==0)
@@ -104,7 +104,7 @@ namespace DataStructures
         size++;
     }
 
-    template <class key_type, class data_type, unsigned int HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
+    template <class key_type, class data_type, size_t HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
     data_type* Hash<key_type, data_type, HASH_SIZE, hashFunction>::Peek(key_type key )
     {
         if (nodeList==0)
@@ -121,8 +121,8 @@ namespace DataStructures
         return 0;
     }
 
-    template <class key_type, class data_type, unsigned int HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
-    bool Hash<key_type, data_type, HASH_SIZE, hashFunction>::Pop(data_type& out, key_type key, const char *file, unsigned int line )
+    template <class key_type, class data_type, size_t HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
+    bool Hash<key_type, data_type, HASH_SIZE, hashFunction>::Pop(data_type& out, key_type key )
     {
         if (nodeList==0)
             return false;
@@ -138,7 +138,7 @@ namespace DataStructures
             {
                 // Delete last item
                 out=node->data;
-                ClearIndex(hashIndex,_FILE_AND_LINE_);
+                ClearIndex(hashIndex);
                 return true;
             }
             else
@@ -179,8 +179,8 @@ namespace DataStructures
         return false;
     }
 
-    template <class key_type, class data_type, unsigned int HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
-    bool Hash<key_type, data_type, HASH_SIZE, hashFunction>::RemoveAtIndex(HashIndex index, const char *file, unsigned int line )
+    template <class key_type, class data_type, size_t HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
+    bool Hash<key_type, data_type, HASH_SIZE, hashFunction>::RemoveAtIndex(HashIndex index )
     {
         if (index.IsInvalid())
             return false;
@@ -191,7 +191,7 @@ namespace DataStructures
         if (node->next==0)
         {
             // Delete last item
-            ClearIndex(index.primaryIndex,file,line);
+            ClearIndex(index.primaryIndex);
             return true;
         }
         else if (index.secondaryIndex==0)
@@ -222,13 +222,13 @@ namespace DataStructures
         return true;
     }
 
-    template <class key_type, class data_type, unsigned int HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
-    bool Hash<key_type, data_type, HASH_SIZE, hashFunction>::Remove(key_type key, const char *file, unsigned int line )
+    template <class key_type, class data_type, size_t HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
+    bool Hash<key_type, data_type, HASH_SIZE, hashFunction>::Remove(key_type key )
     {
-        return RemoveAtIndex(GetIndexOf(key),file,line);
+        return RemoveAtIndex(GetIndexOf(key));
     }
 
-    template <class key_type, class data_type, unsigned int HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
+    template <class key_type, class data_type, size_t HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
     HashIndex Hash<key_type, data_type, HASH_SIZE, hashFunction>::GetIndexOf(key_type key)
     {
         if (nodeList==0)
@@ -260,19 +260,18 @@ namespace DataStructures
         return idx;
     }
 
-    template <class key_type, class data_type, unsigned int HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
+    template <class key_type, class data_type, size_t HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
     bool Hash<key_type, data_type, HASH_SIZE, hashFunction>::HasData(key_type key)
     {
         return GetIndexOf(key).IsInvalid()==false;
     }
 
-    template <class key_type, class data_type, unsigned int HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
+    template <class key_type, class data_type, size_t HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
     data_type& Hash<key_type, data_type, HASH_SIZE, hashFunction>::ItemAtIndex(const HashIndex &index)
     {
         Node *node = nodeList[index.primaryIndex];
         RakAssert(node);
-        unsigned int i;
-        for (i=0; i < index.secondaryIndex; i++)
+        for (size_t i=0; i < index.secondaryIndex; i++)
         {
             node=node->next;
             RakAssert(node);
@@ -280,13 +279,12 @@ namespace DataStructures
         return node->data;
     }
 
-    template <class key_type, class data_type, unsigned int HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
+    template <class key_type, class data_type, size_t HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
     key_type  Hash<key_type, data_type, HASH_SIZE, hashFunction>::KeyAtIndex(const HashIndex &index)
     {
         Node *node = nodeList[index.primaryIndex];
         RakAssert(node);
-        unsigned int i;
-        for (i=0; i < index.secondaryIndex; i++)
+        for (size_t i=0; i < index.secondaryIndex; i++)
         {
             node=node->next;
             RakAssert(node);
@@ -294,22 +292,21 @@ namespace DataStructures
         return node->string;
     }
 
-    template <class key_type, class data_type, unsigned int HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
-    void Hash<key_type, data_type, HASH_SIZE, hashFunction>::Clear(const char *file, unsigned int line)
+    template <class key_type, class data_type, size_t HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
+    void Hash<key_type, data_type, HASH_SIZE, hashFunction>::Clear()
     {
         if (nodeList)
         {
-            unsigned int i;
-            for (i=0; i < HASH_SIZE; i++)
-                ClearIndex(i,file,line);
+            for (size_t i=0; i < HASH_SIZE; i++)
+                ClearIndex(i);
             delete[] nodeList;
             nodeList=0;
             size=0;
         }
     }
 
-    template <class key_type, class data_type, unsigned int HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
-    void Hash<key_type, data_type, HASH_SIZE, hashFunction>::ClearIndex(unsigned int index,const char *file, unsigned int line)
+    template <class key_type, class data_type, size_t HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
+    void Hash<key_type, data_type, HASH_SIZE, hashFunction>::ClearIndex(size_t index)
     {
         Node *node = nodeList[index];
         Node *next;
@@ -323,32 +320,30 @@ namespace DataStructures
         nodeList[index]=0;
     }
 
-    template <class key_type, class data_type, unsigned int HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
-    void Hash<key_type, data_type, HASH_SIZE, hashFunction>::GetAsList(DataStructures::List<data_type> &itemList,DataStructures::List<key_type > &keyList,const char *file, unsigned int line) const
+    template <class key_type, class data_type, size_t HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
+    void Hash<key_type, data_type, HASH_SIZE, hashFunction>::GetAsList(DataStructures::List<data_type> &itemList,DataStructures::List<key_type > &keyList) const
     {
         if (nodeList==0)
             return;
-        itemList.Clear(false,_FILE_AND_LINE_);
-        keyList.Clear(false,_FILE_AND_LINE_);
+        itemList.Clear(false);
+        keyList.Clear(false);
 
-        Node *node;
-        unsigned int i;
-        for (i=0; i < HASH_SIZE; i++)
+        for (size_t i=0; i < HASH_SIZE; i++)
         {
             if (nodeList[i])
             {
-                node=nodeList[i];
+                Node *node=nodeList[i];
                 while (node)
                 {
-                    itemList.Push(node->data,file,line);
-                    keyList.Push(node->string,file,line);
+                    itemList.Push(node->data);
+                    keyList.Push(node->string);
                     node=node->next;
                 }
             }
         }
     }
-    template <class key_type, class data_type, unsigned int HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
-    unsigned int Hash<key_type, data_type, HASH_SIZE, hashFunction>::Size(void) const
+    template <class key_type, class data_type, size_t HASH_SIZE, unsigned long (*hashFunction)(const key_type &) >
+    size_t Hash<key_type, data_type, HASH_SIZE, hashFunction>::Size(void) const
     {
         return size;
     }

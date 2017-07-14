@@ -58,7 +58,7 @@ BitStream::BitStream()
     copyData = true;
 }
 
-BitStream::BitStream(unsigned int initialBytesToAllocate)
+BitStream::BitStream(size_t initialBytesToAllocate)
 {
     numberOfBitsUsed = 0;
     readOffset = 0;
@@ -78,7 +78,7 @@ BitStream::BitStream(unsigned int initialBytesToAllocate)
     copyData = true;
 }
 
-BitStream::BitStream(unsigned char *_data, unsigned int lengthInBytes, bool _copyData)
+BitStream::BitStream(unsigned char *_data, size_t lengthInBytes, bool _copyData)
 {
     numberOfBitsUsed = lengthInBytes << 3;
     readOffset = 0;
@@ -142,7 +142,7 @@ void BitStream::Reset(void)
 }
 
 // Write an array or casted stream
-void BitStream::Write(const char *inputByteArray, unsigned int numberOfBytes)
+void BitStream::Write(const char *inputByteArray, size_t numberOfBytes)
 {
     if (numberOfBytes == 0)
         return;
@@ -151,7 +151,7 @@ void BitStream::Write(const char *inputByteArray, unsigned int numberOfBytes)
     if ((numberOfBitsUsed & 7) == 0)
     {
         AddBitsAndReallocate(BYTES_TO_BITS(numberOfBytes));
-        memcpy(data + BITS_TO_BYTES(numberOfBitsUsed), inputByteArray, (size_t) numberOfBytes);
+        memcpy(data + BITS_TO_BYTES(numberOfBitsUsed), inputByteArray, numberOfBytes);
         numberOfBitsUsed += BYTES_TO_BITS(numberOfBytes);
     }
     else
@@ -243,7 +243,7 @@ bool BitStream::Read(BitStream &bitStream)
 }
 
 // Read an array or casted stream
-bool BitStream::Read(char *outByteArray, unsigned int numberOfBytes)
+bool BitStream::Read(char *outByteArray, size_t numberOfBytes)
 {
     // Optimization:
     if ((readOffset & 7) == 0)
@@ -252,7 +252,7 @@ bool BitStream::Read(char *outByteArray, unsigned int numberOfBytes)
             return false;
 
         // Write the data
-        memcpy(outByteArray, data + (readOffset >> 3), (size_t) numberOfBytes);
+        memcpy(outByteArray, data + (readOffset >> 3), numberOfBytes);
 
         readOffset += numberOfBytes << 3;
         return true;
@@ -311,7 +311,7 @@ bool BitStream::ReadBit(void)
 // Align the bitstream to the byte boundary and then write the specified number of bits.
 // This is faster than WriteBits but wastes the bits to do the alignment and requires you to call
 // SetReadToByteAlignment at the corresponding read position
-void BitStream::WriteAlignedBytes(const uint8_t *inByteArray, unsigned int numberOfBytesToWrite)
+void BitStream::WriteAlignedBytes(const uint8_t *inByteArray, size_t numberOfBytesToWrite)
 {
     AlignWriteToByteBoundary();
     Write((const char *) inByteArray, numberOfBytesToWrite);
@@ -338,7 +338,7 @@ void BitStream::WriteAlignedBytesSafe(const char *inByteArray, unsigned int inpu
 // Read bits, starting at the next aligned bits. Note that the modulus 8 starting offset of the
 // sequence must be the same as was used with WriteBits. This will be a problem with packet coalescence
 // unless you byte align the coalesced packets.
-bool BitStream::ReadAlignedBytes(unsigned char *inOutByteArray, unsigned int numberOfBytesToRead)
+bool BitStream::ReadAlignedBytes(unsigned char *inOutByteArray, size_t numberOfBytesToRead)
 {
     RakAssert(numberOfBytesToRead > 0);
 
@@ -352,7 +352,7 @@ bool BitStream::ReadAlignedBytes(unsigned char *inOutByteArray, unsigned int num
         return false;
 
     // Write the data
-    memcpy(inOutByteArray, data + (readOffset >> 3), (size_t) numberOfBytesToRead);
+    memcpy(inOutByteArray, data + (readOffset >> 3), numberOfBytesToRead);
 
     readOffset += numberOfBytesToRead << 3;
 
@@ -725,7 +725,7 @@ void BitStream::PrintBits(char *out) const
         return;
     }
 
-    unsigned int strIndex = 0;
+    size_t strIndex = 0;
     for (BitSize_t counter = 0; counter < BITS_TO_BYTES(numberOfBitsUsed) && strIndex < 2000; counter++)
     {
         BitSize_t stop;
@@ -791,7 +791,7 @@ void BitStream::IgnoreBits(BitSize_t numberOfBits)
     readOffset += numberOfBits;
 }
 
-void BitStream::IgnoreBytes(unsigned int numberOfBytes)
+void BitStream::IgnoreBytes(size_t numberOfBytes)
 {
     IgnoreBits(BYTES_TO_BITS(numberOfBytes));
 }
@@ -862,7 +862,6 @@ void BitStream::AssertCopyData(void)
             memcpy(newdata, data, (size_t) BITS_TO_BYTES(numberOfBitsAllocated));
             data = newdata;
         }
-
         else
             data = 0;
     }

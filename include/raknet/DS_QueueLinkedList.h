@@ -37,7 +37,7 @@ namespace DataStructures
         QueueType& Peek( void );
         QueueType& EndPeek( void );
         void Push( const QueueType& input );
-        unsigned int Size( void );
+        size_t Size( void );
         void Clear( void );
         void Compress( void );
 
@@ -51,7 +51,7 @@ namespace DataStructures
     }
 
     template <class QueueType>
-    inline unsigned int QueueLinkedList<QueueType>::Size()
+    inline size_t QueueLinkedList<QueueType>::Size()
     {
         return data.Size();
     }

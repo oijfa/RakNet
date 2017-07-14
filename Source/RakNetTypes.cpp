@@ -203,7 +203,7 @@ bool SystemAddress::operator<(const SystemAddress &right) const
     return address.addr4.sin_port < right.address.addr4.sin_port;
 }
 
-int SystemAddress::size(void)
+size_t SystemAddress::size(void)
 {
 #if RAKNET_SUPPORT_IPV6 == 1
     return sizeof(sockaddr_in6) + sizeof(char);
@@ -305,7 +305,7 @@ const char *SystemAddress::ToString(bool writePort, char portDelineator) const
     static char str[8][22 + 5 + 1];
 #endif
 
-    unsigned char lastStrIndex = strIndex++;
+    /*unsigned char lastStrIndex =*/ strIndex++;
     ToString(writePort, str[strIndex & 7], portDelineator);
     return (char *) str[strIndex++ & 7];
 }

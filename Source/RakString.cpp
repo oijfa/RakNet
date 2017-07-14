@@ -333,17 +333,17 @@ const RakNet::RakString operator+(const RakNet::RakString &lhs, const RakNet::Ra
     size_t allocatedBytes = RakString::GetSizeToAllocate(lhs.GetLength() + rhs.GetLength() + 1);
 
     RakString::LockMutex();
-    // sharedString = RakString::pool.Allocate( _FILE_AND_LINE_ );
+    // sharedString = RakString::pool.Allocate(  );
     if (RakString::freeList.Size() == 0)
     {
-        //RakString::sharedStringFreeList=(RakString::SharedString*) rakRealloc_Ex(RakString::sharedStringFreeList,(RakString::sharedStringFreeListAllocationCount+1024)*sizeof(RakString::SharedString), _FILE_AND_LINE_);
+        //RakString::sharedStringFreeList=(RakString::SharedString*) rakRealloc_Ex(RakString::sharedStringFreeList,(RakString::sharedStringFreeListAllocationCount+1024)*sizeof(RakString::SharedString));
         for (unsigned i = 0; i < 128; i++)
         {
             // RakString::freeList.Insert(RakString::sharedStringFreeList+i+RakString::sharedStringFreeListAllocationCount);
             RakString::SharedString *ss;
             ss = (RakString::SharedString *) malloc(sizeof(RakString::SharedString));
             ss->refCountMutex = new SimpleMutex;
-            RakString::freeList.Insert(ss, _FILE_AND_LINE_);
+            RakString::freeList.Insert(ss);
 
         }
         //RakString::sharedStringFreeListAllocationCount+=1024;
@@ -647,7 +647,7 @@ void RakString::Erase(unsigned int index, unsigned int count)
     RakAssert(index + count <= len);
 
     Clone();
-    unsigned i = index;
+    size_t i = index;
     for (; i < len - count; i++)
         sharedString->c_str[i] = sharedString->c_str[i + count];
 
@@ -656,8 +656,8 @@ void RakString::Erase(unsigned int index, unsigned int count)
 
 void RakString::TerminateAtLastCharacter(char c)
 {
-    int i, len = (int) GetLength();
-    for (i = len - 1; i >= 0; i--)
+    size_t len = GetLength();
+    for (size_t i = len - 1; i >= 0; i--)
     {
         if (sharedString->c_str[i] == c)
         {
@@ -859,12 +859,10 @@ RakNet::RakString &RakString::URLEncode(void)
     for (unsigned i = 0; i < strLen; i++)
     {
         unsigned char c = sharedString->c_str[i];
-        if (
-                (c <= 47) ||
-                (c >= 58 && c <= 64) ||
-                (c >= 91 && c <= 96) ||
-                (c >= 123)
-                )
+        if ((c <= 47) ||
+            (c >= 58 && c <= 64) ||
+            (c >= 91 && c <= 96) ||
+            (c >= 123))
         {
             char buff[3];
             Itoa(c, buff, 16);
@@ -1090,7 +1088,6 @@ RakString RakString::FormatForGET(const char *uri, const char *extraHeaders)
             "Host: %s\r\n"
             "\r\n",
             remotePath.C_String(), host.C_String());
-
     }
 
     return out;
@@ -1176,7 +1173,7 @@ void RakString::FreeMemoryNoMutex(void)
         delete freeList[i]->refCountMutex;
         free(freeList[i]);
     }
-    freeList.Clear(false, _FILE_AND_LINE_);
+    freeList.Clear(false);
 }
 
 void RakString::Serialize(BitStream *bs) const
@@ -1259,14 +1256,14 @@ bool RakString::DeserializeCompressed(char *str, BitStream *bs, bool readLanguag
 
 const char *RakString::ToString(int64_t i)
 {
-    static int index = 0;
+    static size_t index = 0;
     static char buff[64][64];
 #if defined(_WIN32)
     sprintf(buff[index], "%I64d", i);
 #else
     sprintf(buff[index], "%lld", (long long unsigned int) i);
 #endif
-    int lastIndex = index;
+    size_t lastIndex = index;
     if (++index == 64)
         index = 0;
     return buff[lastIndex];
@@ -1274,14 +1271,14 @@ const char *RakString::ToString(int64_t i)
 
 const char *RakString::ToString(uint64_t i)
 {
-    static int index = 0;
+    static size_t index = 0;
     static char buff[64][64];
 #if defined(_WIN32)
     sprintf(buff[index], "%I64u", i);
 #else
     sprintf(buff[index], "%llu", (long long unsigned int) i);
 #endif
-    int lastIndex = index;
+    size_t lastIndex = index;
     if (++index == 64)
         index = 0;
     return buff[lastIndex];
@@ -1295,20 +1292,20 @@ void RakString::Clear(void)
 void RakString::Allocate(size_t len)
 {
     RakString::LockMutex();
-    // sharedString = RakString::pool.Allocate( _FILE_AND_LINE_ );
+    // sharedString = RakString::pool.Allocate(  );
     if (RakString::freeList.Size() == 0)
     {
         //RakString::sharedStringFreeList=(RakString::SharedString*) realloc(RakString::sharedStringFreeList,(RakString::sharedStringFreeListAllocationCount+1024)*sizeof(RakString::SharedString));
-        for (unsigned i = 0; i < 128; i++)
+        for (size_t i = 0; i < 128; i++)
         {
-            //    RakString::freeList.Insert(RakString::sharedStringFreeList+i+RakString::sharedStringFreeListAllocationCount);
-            //        RakString::freeList.Insert((RakString::SharedString*)malloc(sizeof(RakString::SharedString));
+            // RakString::freeList.Insert(RakString::sharedStringFreeList+i+RakString::sharedStringFreeListAllocationCount);
+            // RakString::freeList.Insert((RakString::SharedString*)malloc(sizeof(RakString::SharedString));
 
             RakString::SharedString *ss = (RakString::SharedString *) malloc(sizeof(RakString::SharedString));
             ss->refCountMutex = new SimpleMutex;
-            RakString::freeList.Insert(ss, _FILE_AND_LINE_);
+            RakString::freeList.Insert(ss);
         }
-        //RakString::sharedStringFreeListAllocationCount+=1024;
+        // RakString::sharedStringFreeListAllocationCount+=1024;
     }
     sharedString = RakString::freeList[RakString::freeList.Size() - 1];
     RakString::freeList.RemoveAtIndex(RakString::freeList.Size() - 1);
@@ -1352,7 +1349,7 @@ void RakString::Assign(const char *str, va_list ap)
 
     char stackBuff[512];
     if (_vsnprintf(stackBuff, 512, str, ap) != -1
-        #ifndef _WIN32
+#ifndef _WIN32
         // Here Windows will return -1 if the string is too long; Linux just truncates the string.
         && strlen(stackBuff) < 511
 #endif
@@ -1444,7 +1441,7 @@ int RakString::ReadIntFromSubstring(const char *str, size_t pos, size_t n)
     return atoi(tmp);
 }
 
-void RakString::AppendBytes(const char *bytes, unsigned int count)
+void RakString::AppendBytes(const char *bytes, size_t count)
 {
     if (IsEmpty())
     {
@@ -1455,7 +1452,7 @@ void RakString::AppendBytes(const char *bytes, unsigned int count)
     else
     {
         Clone();
-        unsigned int length = (unsigned int) GetLength();
+        size_t length = GetLength();
         Realloc(sharedString, count + length + 1);
         memcpy(sharedString->c_str + length, bytes, count);
         sharedString->c_str[length + count] = 0;
@@ -1502,7 +1499,7 @@ void RakString::Free(void)
         */
 
         RakString::LockMutex();
-        RakString::freeList.Insert(sharedString, _FILE_AND_LINE_);
+        RakString::freeList.Insert(sharedString);
         RakString::UnlockMutex();
 
         sharedString = &emptyString;
@@ -1572,10 +1569,10 @@ int main(void)
     s13.Set("blah %s", s12.C_String());
     bool b4 = s13.IsEmpty();
     size_t i1=s13.GetLength();
-    s3.Clear(_FILE_AND_LINE_);
-    s4.Clear(_FILE_AND_LINE_);
-    s5.Clear(_FILE_AND_LINE_);
-    s5.Clear(_FILE_AND_LINE_);
+    s3.Clear();
+    s4.Clear();
+    s5.Clear();
+    s5.Clear();
     s6.Printf();
     s7.Printf();
     RAKNET_DEBUG_PRINTF("\n");
@@ -1594,7 +1591,7 @@ int main(void)
         beforeReferenceList=RakNet::GetTimeMS();
         for (i=0; i < repeatCount; i++)
         {
-            c = RakNet::OP_NEW_ARRAY<char >(56,_FILE_AND_LINE_ );
+            c = RakNet::OP_NEW_ARRAY<char >(56, );
             strcpy(c, "Aalsdkj alsdjf laksdjf ;lasdfj ;lasjfd");
             referenceStringList.Insert(c);
         }
@@ -1626,7 +1623,7 @@ int main(void)
         beforeReferenceList=RakNet::GetTimeMS();
         for (i=0; i < repeatCount; i++)
         {
-            c = RakNet::OP_NEW_ARRAY<char >(56, _FILE_AND_LINE_ );
+            c = RakNet::OP_NEW_ARRAY<char >(56 );
             strcpy(c, "Aalsdkj alsdjf laksdjf ;lasdfj ;lasjfd");
             referenceStringList.Insert(0);
         }

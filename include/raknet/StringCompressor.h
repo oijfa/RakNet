@@ -89,10 +89,8 @@ namespace RakNet
         bool DecodeString( std::string *output, int maxCharsToWrite, RakNet::BitStream *input, uint8_t languageId=0 );
 #endif
 
-        void EncodeString(const RakNet::RakString *input, size_t maxCharsToWrite, RakNet::BitStream *output,
-                          uint8_t languageId = 0);
-        bool DecodeString(RakNet::RakString *output, size_t maxCharsToWrite, RakNet::BitStream *input,
-                          uint8_t languageId = 0);
+        void EncodeString(const RakNet::RakString *input, size_t maxCharsToWrite, RakNet::BitStream *output, uint8_t languageId = 0);
+        bool DecodeString(RakNet::RakString *output, size_t maxCharsToWrite, RakNet::BitStream *input, uint8_t languageId = 0);
 
         StringCompressor();
 

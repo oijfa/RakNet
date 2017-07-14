@@ -18,13 +18,13 @@ using namespace RakNet;
 
 void TableSerializer::SerializeTable(DataStructures::Table *in, RakNet::BitStream *out)
 {
-    DataStructures::Page<unsigned, DataStructures::Table::Row *, _TABLE_BPLUS_TREE_ORDER> *cur = in->GetRows().GetListHead();
+    DataStructures::Table::PageType *cur = in->GetRows().GetListHead();
     const DataStructures::List<DataStructures::Table::ColumnDescriptor> &columns = in->GetColumns();
     SerializeColumns(in, out);
     out->Write(in->GetRows().Size());
     while (cur)
     {
-        for (unsigned rowIndex = 0; rowIndex < (unsigned) cur->size; rowIndex++)
+        for (size_t rowIndex = 0; rowIndex < cur->size; rowIndex++)
             SerializeRow(cur->data[rowIndex], cur->keys[rowIndex], columns, out);
         cur = cur->next;
     }

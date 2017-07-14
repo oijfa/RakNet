@@ -51,7 +51,7 @@ namespace DataStructures
         // Used for both leaf and index nodes.
         // For a leaf it means the number of elements in data
         // For an index it means the number of keys and is one less than the number of children pointers.
-        int size;
+        size_t size;
 
         // Used for both leaf and index nodes.
         KeyType keys[order];
@@ -86,36 +86,36 @@ namespace DataStructures
 
         BPlusTree();
         ~BPlusTree();
-        void SetPoolPageSize(int size); // Set the page size for the memory pool.  Optionsl
+        void SetPoolPageSize(size_t size); // Set the page size for the memory pool.  Optionsl
         bool Get(const KeyType key, DataType &out) const;
         bool Delete(const KeyType key);
         bool Delete(const KeyType key, DataType &out);
         bool Insert(const KeyType key, const DataType &data);
         void Clear(void);
-        unsigned Size(void) const;
+        size_t Size(void) const;
         bool IsEmpty(void) const;
         Page<KeyType, DataType, order> *GetListHead(void) const;
         DataType GetDataHead(void) const;
         void PrintLeaves(void);
-        void ForEachLeaf(void (*func)(Page<KeyType, DataType, order> * leaf, int index));
-        void ForEachData(void (*func)(DataType input, int index));
+        void ForEachLeaf(void (*func)(Page<KeyType, DataType, order> * leaf, size_t index));
+        void ForEachData(void (*func)(DataType input, size_t index));
         void PrintGraph(void);
     protected:
         void ValidateTreeRecursive(Page<KeyType, DataType, order> *cur);
-        void DeleteFromPageAtIndex(const int index, Page<KeyType, DataType, order> *cur);
-        static void PrintLeaf(Page<KeyType, DataType, order> * leaf, int index);
+        void DeleteFromPageAtIndex(const size_t index, Page<KeyType, DataType, order> *cur);
+        static void PrintLeaf(Page<KeyType, DataType, order> * leaf, size_t index);
         void FreePages(void);
-        bool GetIndexOf(const KeyType key, Page<KeyType, DataType, order> *page, int *out) const;
+        bool GetIndexOf(const KeyType key, Page<KeyType, DataType, order> *page, size_t *out) const;
         void ShiftKeysLeft(Page<KeyType, DataType, order> *cur);
-        bool CanRotateLeft(Page<KeyType, DataType, order> *cur, int childIndex);
-        bool CanRotateRight(Page<KeyType, DataType, order> *cur, int childIndex);
-        void RotateRight(Page<KeyType, DataType, order> *cur, int childIndex, ReturnAction *returnAction);
-        void RotateLeft(Page<KeyType, DataType, order> *cur, int childIndex, ReturnAction *returnAction);
-        Page<KeyType, DataType, order>* InsertIntoNode(const KeyType key, const DataType &childData, int insertionIndex, Page<KeyType, DataType, order> *nodeData, Page<KeyType, DataType, order> *cur, ReturnAction* returnAction);
+        bool CanRotateLeft(Page<KeyType, DataType, order> *cur, size_t childIndex);
+        bool CanRotateRight(Page<KeyType, DataType, order> *cur, size_t childIndex);
+        void RotateRight(Page<KeyType, DataType, order> *cur, size_t childIndex, ReturnAction *returnAction);
+        void RotateLeft(Page<KeyType, DataType, order> *cur, size_t childIndex, ReturnAction *returnAction);
+        Page<KeyType, DataType, order>* InsertIntoNode(const KeyType key, const DataType &childData, size_t insertionIndex, Page<KeyType, DataType, order> *nodeData, Page<KeyType, DataType, order> *cur, ReturnAction* returnAction);
         Page<KeyType, DataType, order>* InsertBranchDown(const KeyType key, const DataType &data,Page<KeyType, DataType, order> *cur, ReturnAction* returnAction, bool *success);
         Page<KeyType, DataType, order>* GetLeafFromKey(const KeyType key) const;
         bool FindDeleteRebalance(const KeyType key, Page<KeyType, DataType, order> *cur, bool *underflow, KeyType rightRootKey, ReturnAction *returnAction, DataType &out);
-        bool FixUnderflow(int branchIndex, Page<KeyType, DataType, order> *cur, KeyType rightRootKey, ReturnAction *returnAction);
+        bool FixUnderflow(size_t branchIndex, Page<KeyType, DataType, order> *cur, KeyType rightRootKey, ReturnAction *returnAction);
         void ShiftNodeLeft(Page<KeyType, DataType, order> *cur);
         void ShiftNodeRight(Page<KeyType, DataType, order> *cur);
 
@@ -136,7 +136,7 @@ namespace DataStructures
         Clear();
     }
     template<class KeyType, class DataType, int order>
-    void BPlusTree<KeyType, DataType, order>::SetPoolPageSize(int size)
+    void BPlusTree<KeyType, DataType, order>::SetPoolPageSize(size_t size)
     {
         pagePool.SetPageSize(size);
     }
@@ -147,7 +147,7 @@ namespace DataStructures
             return false;
 
         Page<KeyType, DataType, order>* leaf = GetLeafFromKey(key);
-        int childIndex;
+        size_t childIndex;
 
         if (GetIndexOf(key, leaf, &childIndex))
         {
@@ -157,7 +157,7 @@ namespace DataStructures
         return false;
     }
     template<class KeyType, class DataType, int order>
-    void BPlusTree<KeyType, DataType, order>::DeleteFromPageAtIndex(const int index, Page<KeyType, DataType, order> *cur)
+    void BPlusTree<KeyType, DataType, order>::DeleteFromPageAtIndex(const size_t index, Page<KeyType, DataType, order> *cur)
     {
         int i;
         for (i=index; i < cur->size-1; i++)
@@ -188,7 +188,7 @@ namespace DataStructures
 
         ReturnAction returnAction;
         returnAction.action=ReturnAction::NO_ACTION;
-        int childIndex;
+        size_t childIndex;
         bool underflow=false;
         if (root==leftmostLeaf)
         {
@@ -198,7 +198,7 @@ namespace DataStructures
             DeleteFromPageAtIndex(childIndex,root);
             if (root->size==0)
             {
-                pagePool.Release(root, _FILE_AND_LINE_);
+                pagePool.Release(root);
                 root=0;
                 leftmostLeaf=0;
             }
@@ -214,7 +214,7 @@ namespace DataStructures
             // Move the root down.
             Page<KeyType, DataType, order> *oldRoot=root;
             root=root->children[0];
-            pagePool.Release(oldRoot, _FILE_AND_LINE_);
+            pagePool.Release(oldRoot);
             // memset(oldRoot,0,sizeof(root));
         }
 
@@ -224,7 +224,7 @@ namespace DataStructures
     bool BPlusTree<KeyType, DataType, order>::FindDeleteRebalance(const KeyType key, Page<KeyType, DataType, order> *cur, bool *underflow, KeyType rightRootKey, ReturnAction *returnAction, DataType &out)
     {
         // Get index of child to follow.
-        int branchIndex, childIndex;
+        size_t branchIndex, childIndex;
         if (GetIndexOf(key, cur, &childIndex))
             branchIndex=childIndex+1;
         else
@@ -296,7 +296,7 @@ namespace DataStructures
         return true;
     }
     template<class KeyType, class DataType, int order>
-    bool BPlusTree<KeyType, DataType, order>::FixUnderflow(int branchIndex, Page<KeyType, DataType, order> *cur, KeyType rightRootKey, ReturnAction *returnAction)
+    bool BPlusTree<KeyType, DataType, order>::FixUnderflow(size_t branchIndex, Page<KeyType, DataType, order> *cur, KeyType rightRootKey, ReturnAction *returnAction)
     {
         // Borrow from a neighbor that has excess.
         Page<KeyType, DataType, order> *source;
@@ -468,7 +468,7 @@ namespace DataStructures
             }
 
             // Free the source node
-            pagePool.Release(source, _FILE_AND_LINE_);
+            pagePool.Release(source);
             // memset(source,0,sizeof(root));
 
             // Return underflow or not of parent.
@@ -513,9 +513,9 @@ namespace DataStructures
         cur->size--;
     }
     template<class KeyType, class DataType, int order>
-    Page<KeyType, DataType, order>* BPlusTree<KeyType, DataType, order>::InsertIntoNode(const KeyType key, const DataType &leafData, int insertionIndex, Page<KeyType, DataType, order> *nodeData, Page<KeyType, DataType, order> *cur, ReturnAction* returnAction)
+    Page<KeyType, DataType, order>* BPlusTree<KeyType, DataType, order>::InsertIntoNode(const KeyType key, const DataType &leafData, size_t insertionIndex, Page<KeyType, DataType, order> *nodeData, Page<KeyType, DataType, order> *cur, ReturnAction* returnAction)
     {
-        int i;
+        size_t i;
         if (cur->size < order)
         {
             for (i=cur->size; i > insertionIndex; i--)
@@ -540,7 +540,7 @@ namespace DataStructures
         }
         else
         {
-            Page<KeyType, DataType, order>* newPage = pagePool.Allocate( _FILE_AND_LINE_ );
+            Page<KeyType, DataType, order>* newPage = pagePool.Allocate(  );
             newPage->isLeaf=cur->isLeaf;
             if (cur->isLeaf)
             {
@@ -653,13 +653,13 @@ namespace DataStructures
     }
 
     template<class KeyType, class DataType, int order>
-    bool BPlusTree<KeyType, DataType, order>::CanRotateLeft(Page<KeyType, DataType, order> *cur, int childIndex)
+    bool BPlusTree<KeyType, DataType, order>::CanRotateLeft(Page<KeyType, DataType, order> *cur, size_t childIndex)
     {
         return childIndex>0 && cur->children[childIndex-1]->size<order;
     }
 
     template<class KeyType, class DataType, int order>
-    void BPlusTree<KeyType, DataType, order>::RotateLeft(Page<KeyType, DataType, order> *cur, int childIndex, ReturnAction *returnAction)
+    void BPlusTree<KeyType, DataType, order>::RotateLeft(Page<KeyType, DataType, order> *cur, size_t childIndex, ReturnAction *returnAction)
     {
         Page<KeyType, DataType, order> *dest = cur->children[childIndex-1];
         Page<KeyType, DataType, order> *source = cur->children[childIndex];
@@ -678,13 +678,13 @@ namespace DataStructures
     }
 
     template<class KeyType, class DataType, int order>
-    bool BPlusTree<KeyType, DataType, order>::CanRotateRight(Page<KeyType, DataType, order> *cur, int childIndex)
+    bool BPlusTree<KeyType, DataType, order>::CanRotateRight(Page<KeyType, DataType, order> *cur, size_t childIndex)
     {
         return childIndex < cur->size && cur->children[childIndex+1]->size<order;
     }
 
     template<class KeyType, class DataType, int order>
-    void BPlusTree<KeyType, DataType, order>::RotateRight(Page<KeyType, DataType, order> *cur, int childIndex, ReturnAction *returnAction)
+    void BPlusTree<KeyType, DataType, order>::RotateRight(Page<KeyType, DataType, order> *cur, size_t childIndex, ReturnAction *returnAction)
     {
         Page<KeyType, DataType, order> *dest = cur->children[childIndex+1];
         Page<KeyType, DataType, order> *source = cur->children[childIndex];
@@ -706,8 +706,8 @@ namespace DataStructures
         Page<KeyType, DataType, order>* BPlusTree<KeyType, DataType, order>::GetLeafFromKey(const KeyType key) const
     {
         Page<KeyType, DataType, order>* cur = root;
-        int childIndex;
-        while (cur->isLeaf==false)
+        size_t childIndex;
+        while (!cur->isLeaf)
         {
             // When searching, if we match the exact key we go down the pointer after that index
             if (GetIndexOf(key, cur, &childIndex))
@@ -720,8 +720,8 @@ namespace DataStructures
     template<class KeyType, class DataType, int order>
     Page<KeyType, DataType, order>* BPlusTree<KeyType, DataType, order>::InsertBranchDown(const KeyType key, const DataType &data,Page<KeyType, DataType, order> *cur, ReturnAction *returnAction, bool *success)
     {
-        int childIndex;
-        int branchIndex;
+        size_t childIndex;
+        size_t branchIndex;
         if (GetIndexOf(key, cur, &childIndex))
             branchIndex=childIndex+1;
         else
@@ -744,7 +744,7 @@ namespace DataStructures
                     {
                         RotateLeft(cur, branchIndex, returnAction);
 
-                        int insertionIndex;
+                        size_t insertionIndex;
                         GetIndexOf(key, cur->children[branchIndex], &insertionIndex);
                         InsertIntoNode(key, data, insertionIndex, 0, cur->children[branchIndex], 0);
                     }
@@ -773,7 +773,7 @@ namespace DataStructures
                     {
                         RotateRight(cur, branchIndex, returnAction);
 
-                        int insertionIndex;
+                        size_t insertionIndex;
                         GetIndexOf(key, cur->children[branchIndex], &insertionIndex);
                         InsertIntoNode(key, data, insertionIndex, 0, cur->children[branchIndex], 0);
 
@@ -831,7 +831,7 @@ namespace DataStructures
         if (root==0)
         {
             // Allocate root and make root a leaf
-            root = pagePool.Allocate( _FILE_AND_LINE_ );
+            root = pagePool.Allocate();
             root->isLeaf=true;
             leftmostLeaf=root;
             root->size=1;
@@ -861,7 +861,7 @@ namespace DataStructures
                 else
                      newKey = newPage->keys[0];
                 // propagate the root
-                Page<KeyType, DataType, order>* newRoot = pagePool.Allocate( _FILE_AND_LINE_ );
+                Page<KeyType, DataType, order>* newRoot = pagePool.Allocate(  );
                 newRoot->isLeaf=false;
                 newRoot->size=1;
                 newRoot->keys[0]=newKey;
@@ -889,17 +889,18 @@ namespace DataStructures
             leftmostLeaf=0;
             root=0;
         }
-        pagePool.Clear(_FILE_AND_LINE_);
+        pagePool.Clear();
     }
+
     template<class KeyType, class DataType, int order>
-        unsigned BPlusTree<KeyType, DataType, order>::Size(void) const
+    size_t BPlusTree<KeyType, DataType, order>::Size(void) const
     {
-        unsigned int count=0;
+        size_t count = 0;
         DataStructures::Page<KeyType, DataType, order> *cur = GetListHead();
         while (cur)
         {
-            count+=cur->size;
-            cur=cur->next;
+            count += cur->size;
+            cur = cur->next;
         }
         return count;
     }
@@ -909,10 +910,10 @@ namespace DataStructures
         return root==0;
     }
     template<class KeyType, class DataType, int order>
-        bool BPlusTree<KeyType, DataType, order>::GetIndexOf(const KeyType key, Page<KeyType, DataType, order> *page, int *out) const
+        bool BPlusTree<KeyType, DataType, order>::GetIndexOf(const KeyType key, Page<KeyType, DataType, order> *page, size_t *out) const
     {
         RakAssert(page->size>0);
-        int index, upperBound, lowerBound;
+        size_t index, upperBound, lowerBound;
         upperBound=page->size-1;
         lowerBound=0;
         index = page->size/2;
@@ -947,16 +948,16 @@ namespace DataStructures
         DataStructures::Queue<DataStructures::Page<KeyType, DataType, order> *> queue;
         DataStructures::Page<KeyType, DataType, order> *ptr;
         int i;
-        queue.Push(root, _FILE_AND_LINE_ );
+        queue.Push(root);
         while (queue.Size())
         {
             ptr=queue.Pop();
             if (ptr->isLeaf==false)
             {
                 for (i=0; i < ptr->size+1; i++)
-                    queue.Push(ptr->children[i], _FILE_AND_LINE_ );
+                    queue.Push(ptr->children[i]);
             }
-            pagePool.Release(ptr, _FILE_AND_LINE_);
+            pagePool.Release(ptr);
         //    memset(ptr,0,sizeof(root));
         };
     }
@@ -971,7 +972,7 @@ namespace DataStructures
         return leftmostLeaf->data[0];
     }
     template<class KeyType, class DataType, int order>
-        void BPlusTree<KeyType, DataType, order>::ForEachLeaf(void (*func)(Page<KeyType, DataType, order> * leaf, int index))
+        void BPlusTree<KeyType, DataType, order>::ForEachLeaf(void (*func)(Page<KeyType, DataType, order> * leaf, size_t index))
     {
         int count=0;
         DataStructures::Page<KeyType, DataType, order> *cur = GetListHead();
@@ -982,7 +983,7 @@ namespace DataStructures
         }
     }
     template<class KeyType, class DataType, int order>
-        void BPlusTree<KeyType, DataType, order>::ForEachData(void (*func)(DataType input, int index))
+        void BPlusTree<KeyType, DataType, order>::ForEachData(void (*func)(DataType input, size_t index))
     {
         int count=0,i;
         DataStructures::Page<KeyType, DataType, order> *cur = GetListHead();
@@ -994,7 +995,7 @@ namespace DataStructures
         }
     }
     template<class KeyType, class DataType, int order>
-        void BPlusTree<KeyType, DataType, order>::PrintLeaf(Page<KeyType, DataType, order> * leaf, int index)
+        void BPlusTree<KeyType, DataType, order>::PrintLeaf(Page<KeyType, DataType, order> * leaf, size_t index)
     {
         int i;
         RAKNET_DEBUG_PRINTF("%i] SELF=%p\n", index+1, leaf);
@@ -1031,8 +1032,8 @@ namespace DataStructures
     void BPlusTree<KeyType, DataType, order>::PrintGraph(void)
     {
         DataStructures::Queue<DataStructures::Page<KeyType, DataType, order> *> queue;
-        queue.Push(root,_FILE_AND_LINE_);
-        queue.Push(0,_FILE_AND_LINE_);
+        queue.Push(root);
+        queue.Push(0);
         DataStructures::Page<KeyType, DataType, order> *ptr;
         int i,j;
         if (root)
@@ -1050,7 +1051,7 @@ namespace DataStructures
             ptr=queue.Pop();
             if (ptr==0)
                 RAKNET_DEBUG_PRINTF("\n");
-            else if (ptr->isLeaf==false)
+            else if (!ptr->isLeaf)
             {
                 for (i=0; i < ptr->size+1; i++)
                 {
@@ -1059,9 +1060,9 @@ namespace DataStructures
                     for (j=0; j < ptr->children[i]->size; j++)
                         RAKNET_DEBUG_PRINTF("%i ", ptr->children[i]->keys[j]);
                     RAKNET_DEBUG_PRINTF(") ");
-                    queue.Push(ptr->children[i],_FILE_AND_LINE_);
+                    queue.Push(ptr->children[i]);
                 }
-                 queue.Push(0,_FILE_AND_LINE_);
+                 queue.Push(0);
                 RAKNET_DEBUG_PRINTF(" -- ");
             }
         }
@@ -1141,9 +1142,9 @@ void main(void)
             RakAssert(btree.Size()==haveList.Size());
             btree.ValidateTree();
         }
-        btree.Clear(_FILE_AND_LINE_);
-        removedList.Clear(_FILE_AND_LINE_);
-        haveList.Clear(_FILE_AND_LINE_);
+        btree.Clear();
+        removedList.Clear();
+        haveList.Clear();
     }
 
     RAKNET_DEBUG_PRINTF("Done. %i\n", btree.Size());

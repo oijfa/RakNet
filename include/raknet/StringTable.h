@@ -38,7 +38,7 @@ struct StrAndBool
 
 namespace RakNet
 {
-    int RAK_DLL_EXPORT StrAndBoolComp( char *const &key, const StrAndBool &data );
+    int RAK_DLL_EXPORT StrAndBoolComp(char *const &key, const StrAndBool &data);
 
     /// \details This is an even more efficient alternative to StringCompressor in that it writes a single byte from a lookup table and only does compression.<BR>
     /// if the string does not already exist in the table.<BR>
@@ -86,8 +86,6 @@ namespace RakNet
         void LogStringNotFound(const char *strName);
 
         /// Singleton instance
-        static StringTable *instance;
-        static int referenceCount;
 
         DataStructures::OrderedList<char *, StrAndBool, StrAndBoolComp> orderedStringList;
     };

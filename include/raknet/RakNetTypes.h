@@ -89,7 +89,7 @@ const int UNDEFINED_RPC_INDEX=((RPCIndex)-1);
 /// First byte of a network message
 typedef unsigned char MessageID;
 
-typedef uint32_t BitSize_t;
+typedef size_t BitSize_t;
 
 #if defined(_MSC_VER) && _MSC_VER > 0
 #define PRINTF_64_BIT_MODIFIER "I64"
@@ -167,7 +167,7 @@ struct RAK_DLL_EXPORT SocketDescriptor
     unsigned int extraSocketOptions;
 };
 
-extern bool NonNumericHostString( const char *host );
+extern bool NonNumericHostString(const char *host);
 
 /// \brief Network address for a system
 /// \details Corresponds to a network address<BR>
@@ -195,10 +195,10 @@ struct RAK_DLL_EXPORT SystemAddress
     unsigned short debugPort;
 
     /// \internal Return the size to write to a bitStream
-    static int size(void);
+    static size_t size(void);
 
     /// Hash the system address
-    static unsigned long ToInteger( const SystemAddress &sa );
+    static unsigned long ToInteger(const SystemAddress &sa);
 
     /// Return the IP version, either IPV4 or IPV6
     /// \return Either 4 or 6
@@ -243,10 +243,10 @@ struct RAK_DLL_EXPORT SystemAddress
     bool FromStringExplicitPort(const char *str, unsigned short port, int ipVersion=0);
 
     /// Copy the port from another SystemAddress structure
-    void CopyPort( const SystemAddress& right );
+    void CopyPort(const SystemAddress& right);
 
     /// Returns if two system addresses have the same IP (port is not checked)
-    bool EqualsExcludingPort( const SystemAddress& right ) const;
+    bool EqualsExcludingPort(const SystemAddress& right) const;
 
     /// Returns the port in host order (this is what you normally use)
     unsigned short GetPort(void) const;
@@ -266,16 +266,16 @@ struct RAK_DLL_EXPORT SystemAddress
     /// Old version, for crap platforms that don't support newer socket functions
     void ToString_Old(bool writePort, char *dest, char portDelineator=':') const;
 
-    /// \internal sockaddr_in6 requires extra data beyond just the IP and port. Copy that extra data from an existing SystemAddress that already has it
+    /// \internal sockaddr_in6 requires extra val beyond just the IP and port. Copy that extra val from an existing SystemAddress that already has it
     void FixForIPVersion(const SystemAddress &boundAddressToSocket);
 
     bool IsLANAddress(void);
 
-    SystemAddress& operator = ( const SystemAddress& input );
-    bool operator==( const SystemAddress& right ) const;
-    bool operator!=( const SystemAddress& right ) const;
-    bool operator > ( const SystemAddress& right ) const;
-    bool operator < ( const SystemAddress& right ) const;
+    SystemAddress& operator = (const SystemAddress& input);
+    bool operator==(const SystemAddress& right) const;
+    bool operator!=(const SystemAddress& right) const;
+    bool operator > (const SystemAddress& right) const;
+    bool operator < (const SystemAddress& right) const;
 
     /// \internal Used internally for fast lookup. Optional (use -1 to do regular lookup). Don't transmit this.
     SystemIndex systemIndex;
@@ -308,9 +308,9 @@ struct RAK_DLL_EXPORT RakNetGUID
 
     bool FromString(const char *source);
 
-    static unsigned long ToUint32( const RakNetGUID &g );
+    static unsigned long ToUint32(const RakNetGUID &g);
 
-    RakNetGUID& operator = ( const RakNetGUID& input )
+    RakNetGUID& operator = (const RakNetGUID& input)
     {
         g=input.g;
         systemIndex=input.systemIndex;
@@ -319,12 +319,12 @@ struct RAK_DLL_EXPORT RakNetGUID
 
     // Used internally for fast lookup. Optional (use -1 to do regular lookup). Don't transmit this.
     SystemIndex systemIndex;
-    static int size() {return (int) sizeof(uint64_t);}
+    static size_t size() {return sizeof(uint64_t);}
 
-    bool operator==( const RakNetGUID& right ) const;
-    bool operator!=( const RakNetGUID& right ) const;
-    bool operator > ( const RakNetGUID& right ) const;
-    bool operator < ( const RakNetGUID& right ) const;
+    bool operator==(const RakNetGUID& right) const;
+    bool operator!=(const RakNetGUID& right) const;
+    bool operator > (const RakNetGUID& right) const;
+    bool operator < (const RakNetGUID& right) const;
 };
 
 /// Index of an invalid SystemAddress
@@ -350,49 +350,49 @@ struct RAK_DLL_EXPORT AddressOrGUID
     SystemIndex GetSystemIndex(void) const {if (rakNetGuid!=UNASSIGNED_RAKNET_GUID) return rakNetGuid.systemIndex; else return systemAddress.systemIndex;}
     bool IsUndefined(void) const {return rakNetGuid==UNASSIGNED_RAKNET_GUID && systemAddress==UNASSIGNED_SYSTEM_ADDRESS;}
     void SetUndefined(void) {rakNetGuid=UNASSIGNED_RAKNET_GUID; systemAddress=UNASSIGNED_SYSTEM_ADDRESS;}
-    static unsigned long ToInteger( const AddressOrGUID &aog );
+    static unsigned long ToInteger(const AddressOrGUID &aog);
     const char *ToString(bool writePort=true) const;
     void ToString(bool writePort, char *dest) const;
 
     AddressOrGUID() {}
-    AddressOrGUID( const AddressOrGUID& input )
+    AddressOrGUID(const AddressOrGUID& input)
     {
         rakNetGuid=input.rakNetGuid;
         systemAddress=input.systemAddress;
     }
-    AddressOrGUID( const SystemAddress& input )
+    AddressOrGUID(const SystemAddress& input)
     {
         rakNetGuid=UNASSIGNED_RAKNET_GUID;
         systemAddress=input;
     }
-    AddressOrGUID( Packet *packet );
-    AddressOrGUID( const RakNetGUID& input )
+    AddressOrGUID(Packet *packet);
+    AddressOrGUID(const RakNetGUID& input)
     {
         rakNetGuid=input;
         systemAddress=UNASSIGNED_SYSTEM_ADDRESS;
     }
-    AddressOrGUID& operator = ( const AddressOrGUID& input )
+    AddressOrGUID& operator = (const AddressOrGUID& input)
     {
         rakNetGuid=input.rakNetGuid;
         systemAddress=input.systemAddress;
         return *this;
     }
 
-    AddressOrGUID& operator = ( const SystemAddress& input )
+    AddressOrGUID& operator = (const SystemAddress& input)
     {
         rakNetGuid=UNASSIGNED_RAKNET_GUID;
         systemAddress=input;
         return *this;
     }
 
-    AddressOrGUID& operator = ( const RakNetGUID& input )
+    AddressOrGUID& operator = (const RakNetGUID& input)
     {
         rakNetGuid=input;
         systemAddress=UNASSIGNED_SYSTEM_ADDRESS;
         return *this;
     }
 
-    inline bool operator==( const AddressOrGUID& right ) const {return (rakNetGuid!=UNASSIGNED_RAKNET_GUID && rakNetGuid==right.rakNetGuid) || (systemAddress!=UNASSIGNED_SYSTEM_ADDRESS && systemAddress==right.systemAddress);}
+    inline bool operator==(const AddressOrGUID& right) const {return (rakNetGuid!=UNASSIGNED_RAKNET_GUID && rakNetGuid==right.rakNetGuid) || (systemAddress!=UNASSIGNED_SYSTEM_ADDRESS && systemAddress==right.systemAddress);}
 };
 
 typedef uint64_t NetworkID;
@@ -408,17 +408,17 @@ struct Packet
     /// Until that time, will be UNASSIGNED_RAKNET_GUID
     RakNetGUID guid;
 
-    /// The length of the data in bytes
-    unsigned int length;
+    /// The length of the val in bytes
+    size_t length;
 
-    /// The length of the data in bits
+    /// The length of the val in bits
     BitSize_t bitSize;
 
-    /// The data from the sender
+    /// The val from the sender
     unsigned char* data;
 
     /// @internal
-    /// Indicates whether to delete the data, or to simply delete the packet.
+    /// Indicates whether to delete the val, or to simply delete the packet.
     bool deleteData;
 
     /// @internal
@@ -436,7 +436,7 @@ const int PING_TIMES_ARRAY_SIZE = 5;
 
 struct RAK_DLL_EXPORT uint24_t
 {
-    uint32_t val;
+    uint32_t val : 24;
 
     uint24_t() {}
     inline operator uint32_t() { return val; }
@@ -473,6 +473,13 @@ struct RAK_DLL_EXPORT uint24_t
     inline const uint24_t operator-( const uint32_t &other ) const { return uint24_t(val-other); }
     inline const uint24_t operator/( const uint32_t &other ) const { return uint24_t(val/other); }
     inline const uint24_t operator*( const uint32_t &other ) const { return uint24_t(val*other); }
+
+    inline const uint24_t operator+( const size_t &other ) const { return uint24_t(val+other); }
+    inline const uint24_t operator-( const size_t &other ) const { return uint24_t(val-other); }
+    inline const uint24_t operator/( const size_t &other ) const { return uint24_t(val/other); }
+    inline const uint24_t operator*( const size_t &other ) const { return uint24_t(val*other); }
+
+
 };
 
 } // namespace RakNet

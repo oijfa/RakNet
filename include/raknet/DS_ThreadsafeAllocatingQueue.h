@@ -29,150 +29,151 @@
 namespace DataStructures
 {
 
-template <class structureType>
-class RAK_DLL_EXPORT ThreadsafeAllocatingQueue
-{
-public:
-    // Queue operations
-    void Push(structureType *s);
-    structureType *PopInaccurate(void);
-    structureType *Pop(void);
-    void SetPageSize(int size);
-    bool IsEmpty(void);
-    structureType * operator[] ( unsigned int position );
-    void RemoveAtIndex( unsigned int position );
-    unsigned int Size( void );
-
-    // Memory pool operations
-    structureType *Allocate(const char *file, unsigned int line);
-    void Deallocate(structureType *s, const char *file, unsigned int line);
-    void Clear(const char *file, unsigned int line);
-protected:
-
-    mutable MemoryPool<structureType> memoryPool;
-    RakNet::SimpleMutex memoryPoolMutex;
-    Queue<structureType*> queue;
-    RakNet::SimpleMutex queueMutex;
-};
-
-template <class structureType>
-void ThreadsafeAllocatingQueue<structureType>::Push(structureType *s)
-{
-    queueMutex.Lock();
-    queue.Push(s, _FILE_AND_LINE_ );
-    queueMutex.Unlock();
-}
-
-template <class structureType>
-structureType *ThreadsafeAllocatingQueue<structureType>::PopInaccurate(void)
-{
-    structureType *s;
-    if (queue.IsEmpty())
-        return 0;
-    queueMutex.Lock();
-    if (queue.IsEmpty()==false)
-        s=queue.Pop();
-    else
-        s=0;
-    queueMutex.Unlock();
-    return s;
-}
-
-template <class structureType>
-structureType *ThreadsafeAllocatingQueue<structureType>::Pop(void)
-{
-    structureType *s;
-    queueMutex.Lock();
-    if (queue.IsEmpty())
+    template<class structureType>
+    class RAK_DLL_EXPORT ThreadsafeAllocatingQueue
     {
+    public:
+        // Queue operations
+        void Push(structureType *s);
+        structureType *PopInaccurate(void);
+        structureType *Pop(void);
+        void SetPageSize(size_t size);
+        bool IsEmpty(void);
+        structureType *operator[](size_t position);
+        void RemoveAtIndex(size_t position);
+        size_t Size(void);
+
+        // Memory pool operations
+        structureType *Allocate();
+        void Deallocate(structureType *s);
+        void Clear();
+    protected:
+
+        mutable MemoryPool<structureType> memoryPool;
+        RakNet::SimpleMutex memoryPoolMutex;
+        Queue<structureType *> queue;
+        RakNet::SimpleMutex queueMutex;
+    };
+
+    template<class structureType>
+    void ThreadsafeAllocatingQueue<structureType>::Push(structureType *s)
+    {
+        queueMutex.Lock();
+        queue.Push(s);
         queueMutex.Unlock();
-        return 0;
     }
-    s=queue.Pop();
-    queueMutex.Unlock();
-    return s;
-}
 
-template <class structureType>
-structureType *ThreadsafeAllocatingQueue<structureType>::Allocate(const char *file, unsigned int line)
-{
-    structureType *s;
-    memoryPoolMutex.Lock();
-    s=memoryPool.Allocate(file, line);
-    memoryPoolMutex.Unlock();
-    // Call new operator, memoryPool doesn't do this
-    s = new ((void*)s) structureType;
-    return s;
-}
-template <class structureType>
-void ThreadsafeAllocatingQueue<structureType>::Deallocate(structureType *s, const char *file, unsigned int line)
-{
-    // Call delete operator, memory pool doesn't do this
-    s->~structureType();
-    memoryPoolMutex.Lock();
-    memoryPool.Release(s, file, line);
-    memoryPoolMutex.Unlock();
-}
-
-template <class structureType>
-void ThreadsafeAllocatingQueue<structureType>::Clear(const char *file, unsigned int line)
-{
-    memoryPoolMutex.Lock();
-    for (unsigned int i=0; i < queue.Size(); i++)
+    template<class structureType>
+    structureType *ThreadsafeAllocatingQueue<structureType>::PopInaccurate(void)
     {
-        queue[i]->~structureType();
-        memoryPool.Release(queue[i], file, line);
+        structureType *s;
+        if (queue.IsEmpty())
+            return 0;
+        queueMutex.Lock();
+        if (!queue.IsEmpty())
+            s = queue.Pop();
+        else
+            s = 0;
+        queueMutex.Unlock();
+        return s;
     }
-    queue.Clear(file, line);
-    memoryPoolMutex.Unlock();
-    memoryPoolMutex.Lock();
-    memoryPool.Clear(file, line);
-    memoryPoolMutex.Unlock();
-}
 
-template <class structureType>
-void ThreadsafeAllocatingQueue<structureType>::SetPageSize(int size)
-{
-    memoryPool.SetPageSize(size);
-}
+    template<class structureType>
+    structureType *ThreadsafeAllocatingQueue<structureType>::Pop(void)
+    {
+        structureType *s;
+        queueMutex.Lock();
+        if (queue.IsEmpty())
+        {
+            queueMutex.Unlock();
+            return 0;
+        }
+        s = queue.Pop();
+        queueMutex.Unlock();
+        return s;
+    }
 
-template <class structureType>
-bool ThreadsafeAllocatingQueue<structureType>::IsEmpty(void)
-{
-    bool isEmpty;
-    queueMutex.Lock();
-    isEmpty=queue.IsEmpty();
-    queueMutex.Unlock();
-    return isEmpty;
-}
+    template<class structureType>
+    structureType *ThreadsafeAllocatingQueue<structureType>::Allocate()
+    {
+        structureType *s;
+        memoryPoolMutex.Lock();
+        s = memoryPool.Allocate();
+        memoryPoolMutex.Unlock();
+        // Call new operator, memoryPool doesn't do this
+        s = new((void *) s) structureType;
+        return s;
+    }
 
-template <class structureType>
-structureType * ThreadsafeAllocatingQueue<structureType>::operator[] ( unsigned int position )
-{
-    structureType *s;
-    queueMutex.Lock();
-    s=queue[position];
-    queueMutex.Unlock();
-    return s;
-}
+    template<class structureType>
+    void ThreadsafeAllocatingQueue<structureType>::Deallocate(structureType *s)
+    {
+        // Call delete operator, memory pool doesn't do this
+        s->~structureType();
+        memoryPoolMutex.Lock();
+        memoryPool.Release(s);
+        memoryPoolMutex.Unlock();
+    }
 
-template <class structureType>
-void ThreadsafeAllocatingQueue<structureType>::RemoveAtIndex( unsigned int position )
-{
-    queueMutex.Lock();
-    queue.RemoveAtIndex(position);
-    queueMutex.Unlock();
-}
+    template<class structureType>
+    void ThreadsafeAllocatingQueue<structureType>::Clear()
+    {
+        memoryPoolMutex.Lock();
+        for (size_t i = 0; i < queue.Size(); i++)
+        {
+            queue[i]->~structureType();
+            memoryPool.Release(queue[i]);
+        }
+        queue.Clear();
+        memoryPoolMutex.Unlock();
+        memoryPoolMutex.Lock();
+        memoryPool.Clear();
+        memoryPoolMutex.Unlock();
+    }
 
-template <class structureType>
-unsigned int ThreadsafeAllocatingQueue<structureType>::Size( void )
-{
-    unsigned int s;
-    queueMutex.Lock();
-    s=queue.Size();
-    queueMutex.Unlock();
-    return s;
-}
+    template<class structureType>
+    void ThreadsafeAllocatingQueue<structureType>::SetPageSize(size_t size)
+    {
+        memoryPool.SetPageSize(size);
+    }
+
+    template<class structureType>
+    bool ThreadsafeAllocatingQueue<structureType>::IsEmpty(void)
+    {
+        bool isEmpty;
+        queueMutex.Lock();
+        isEmpty = queue.IsEmpty();
+        queueMutex.Unlock();
+        return isEmpty;
+    }
+
+    template<class structureType>
+    structureType *ThreadsafeAllocatingQueue<structureType>::operator[](size_t position)
+    {
+        structureType *s;
+        queueMutex.Lock();
+        s = queue[position];
+        queueMutex.Unlock();
+        return s;
+    }
+
+    template<class structureType>
+    void ThreadsafeAllocatingQueue<structureType>::RemoveAtIndex(size_t position)
+    {
+        queueMutex.Lock();
+        queue.RemoveAtIndex(position);
+        queueMutex.Unlock();
+    }
+
+    template<class structureType>
+    size_t ThreadsafeAllocatingQueue<structureType>::Size(void)
+    {
+        size_t s;
+        queueMutex.Lock();
+        s = queue.Size();
+        queueMutex.Unlock();
+        return s;
+    }
 
 }
 

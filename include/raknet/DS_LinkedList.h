@@ -18,6 +18,7 @@
 #define __LINKED_LIST_H 
 
 #include "Export.h"
+#include <cstddef>
 
 #ifdef _MSC_VER
 #pragma warning( push )
@@ -112,14 +113,14 @@ namespace DataStructures
     * (++A).Peek();  // Returns 5
     * A.Peek();  // Returns 20
     *
-    * A.Clear(_FILE_AND_LINE_);  // Deletes all nodes in A
+    * A.Clear();  // Deletes all nodes in A
     *
     * A.Insert(5);  // A: 5 - current is 5
     * A.Insert(6); // A: 6 5 - current is 6
     * A.Insert(7); // A: 7 6 5 - current is 7
     *
-    * A.Clear(_FILE_AND_LINE_);
-    * B.Clear(_FILE_AND_LINE_);
+    * A.Clear();
+    * B.Clear();
     *
     * B.Add(10);
     * B.Add(20);
@@ -162,14 +163,14 @@ namespace DataStructures
         };
 
         CircularLinkedList();
-        ~CircularLinkedList();
+        virtual ~CircularLinkedList();
         CircularLinkedList( const CircularLinkedList& original_copy );
         // CircularLinkedList(LinkedList<CircularLinkedListType> original_copy) {CircularLinkedList(original_copy);}  // Converts linked list to circular type
         bool operator= ( const CircularLinkedList& original_copy );
-        CircularLinkedList& operator++();  // CircularLinkedList A; ++A;
-        CircularLinkedList& operator++( int );  // Circular_Linked List A; A++;
-        CircularLinkedList& operator--();  // CircularLinkedList A; --A;
-        CircularLinkedList& operator--( int );  // Circular_Linked List A; A--;
+        virtual CircularLinkedList& operator++();  // CircularLinkedList A; ++A;
+        virtual CircularLinkedList& operator++(int );  // Circular_Linked List A; A++;
+        virtual CircularLinkedList& operator--();  // CircularLinkedList A; --A;
+        virtual CircularLinkedList& operator--(int );  // Circular_Linked List A; A--;
         bool IsIn( const CircularLinkedListType& input );
         bool Find( const CircularLinkedListType& input );
         void Insert( const CircularLinkedListType& input );
@@ -181,7 +182,7 @@ namespace DataStructures
 
         void Del( void );
 
-        unsigned int Size( void );
+        size_t Size( void );
 
         CircularLinkedListType& Peek( void );
 
@@ -198,7 +199,7 @@ namespace DataStructures
         void Concatenate( const CircularLinkedList& L );
 
     protected:
-        unsigned int list_size;
+        size_t list_size;
 
         node *root;
 
@@ -222,7 +223,6 @@ namespace DataStructures
         {}
 
         LinkedList( const LinkedList& original_copy );
-        ~LinkedList();
         bool operator= ( const LinkedList<LinkedListType>& original_copy );
         LinkedList& operator++();  // LinkedList A; ++A;
         LinkedList& operator++( int );  // Linked List A; A++;
@@ -351,12 +351,6 @@ namespace DataStructures
 
     template <class CircularLinkedListType>
         CircularLinkedList<CircularLinkedListType>::~CircularLinkedList()
-    {
-        this->Clear();
-    }
-
-    template <class LinkedListType>
-        LinkedList<LinkedListType>::~LinkedList()
     {
         this->Clear();
     }
@@ -876,7 +870,7 @@ namespace DataStructures
     }
 
     template <class CircularLinkedListType>
-        inline unsigned int CircularLinkedList<CircularLinkedListType>::Size( void )
+    inline size_t CircularLinkedList<CircularLinkedListType>::Size( void )
     {
         return this->list_size;
     }
@@ -992,7 +986,7 @@ namespace DataStructures
     template <class CircularLinkedListType>
         inline void CircularLinkedList<CircularLinkedListType>::Concatenate( const CircularLinkedList<CircularLinkedListType>& L )
     {
-        unsigned int counter;
+        size_t counter;
         node* ptr;
 
         if ( L.list_size == 0 )
@@ -1035,7 +1029,7 @@ namespace DataStructures
     template <class CircularLinkedListType>
         CircularLinkedList<CircularLinkedListType> CircularLinkedList<CircularLinkedListType>::Mergesort( const CircularLinkedList& L )
     {
-        unsigned int counter;
+        size_t counter;
         node* location;
         CircularLinkedList<CircularLinkedListType> L1;
         CircularLinkedList<CircularLinkedListType> L2;
@@ -1116,7 +1110,7 @@ namespace DataStructures
     template <class LinkedListType>
         LinkedList<LinkedListType> LinkedList<LinkedListType>::Mergesort( const LinkedList& L )
     {
-        unsigned int counter;
+        size_t counter;
         typename LinkedList::node* location;
         LinkedList<LinkedListType> L1;
         LinkedList<LinkedListType> L2;

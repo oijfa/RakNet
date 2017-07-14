@@ -67,7 +67,7 @@ namespace DataStructures
      * A.Add(10);
      * A.Add(15);
      * A.Add(5);
-     * int* array = RakNet::OP_NEW<int >(A.Size(), _FILE_AND_LINE_ );
+     * int* array = RakNet::OP_NEW<int >(A.Size() );
      * A.DisplayInorder(array);
      * array[0]; // returns 5
      * array[1]; // returns 10
@@ -109,10 +109,10 @@ namespace DataStructures
         BinarySearchTree( const BinarySearchTree& original_type );
         BinarySearchTree& operator= ( const BinarySearchTree& original_copy );
         unsigned int Size( void );
-        void Clear( const char *file, unsigned int line );
+        void Clear(  );
         unsigned int Height( node* starting_node = 0 );
-        node* Add ( const BinarySearchTreeType& input, const char *file, unsigned int line );
-        node* Del( const BinarySearchTreeType& input, const char *file, unsigned int line );
+        node* Add ( const BinarySearchTreeType& input );
+        node* Del( const BinarySearchTreeType& input );
         bool IsIn( const BinarySearchTreeType& input );
         void DisplayInorder( BinarySearchTreeType* return_array );
         void DisplayPreorder( BinarySearchTreeType* return_array );
@@ -214,14 +214,14 @@ namespace DataStructures
     void AVLBalancedBinarySearchTree<BinarySearchTreeType>::Add ( const BinarySearchTreeType& input )
     {
 
-        typename BinarySearchTree<BinarySearchTreeType>::node * current = BinarySearchTree<BinarySearchTreeType>::Add ( input, _FILE_AND_LINE_ );
+        typename BinarySearchTree<BinarySearchTreeType>::node * current = BinarySearchTree<BinarySearchTreeType>::Add ( input );
         BalanceTree( current, true );
     }
 
     template <class BinarySearchTreeType>
     void AVLBalancedBinarySearchTree<BinarySearchTreeType>::Del( const BinarySearchTreeType& input )
     {
-        typename BinarySearchTree<BinarySearchTreeType>::node * current = BinarySearchTree<BinarySearchTreeType>::Del( input, _FILE_AND_LINE_ );
+        typename BinarySearchTree<BinarySearchTreeType>::node * current = BinarySearchTree<BinarySearchTreeType>::Del( input );
         BalanceTree( current, false );
 
     }
@@ -375,7 +375,7 @@ namespace DataStructures
     template <class BinarySearchTreeType>
     AVLBalancedBinarySearchTree<BinarySearchTreeType>::~AVLBalancedBinarySearchTree()
     {
-        this->Clear(_FILE_AND_LINE_);
+        this->Clear();
     }
 
     template <class BinarySearchTreeType>
@@ -424,7 +424,7 @@ namespace DataStructures
     template <class BinarySearchTreeType>
     BinarySearchTree<BinarySearchTreeType>::~BinarySearchTree()
     {
-        this->Clear(_FILE_AND_LINE_);
+        this->Clear();
     }
 
     template <class BinarySearchTreeType>
@@ -540,7 +540,7 @@ namespace DataStructures
     }
 
     template <class BinarySearchTreeType>
-    typename BinarySearchTree<BinarySearchTreeType>::node* BinarySearchTree<BinarySearchTreeType>::Del( const BinarySearchTreeType& input, const char *file, unsigned int line )
+    typename BinarySearchTree<BinarySearchTreeType>::node* BinarySearchTree<BinarySearchTreeType>::Del( const BinarySearchTreeType& input )
     {
         typename BinarySearchTree::node * node_to_delete, *current, *parent;
 
@@ -678,7 +678,7 @@ namespace DataStructures
     }
 
     template <class BinarySearchTreeType>
-    typename BinarySearchTree<BinarySearchTreeType>::node* BinarySearchTree<BinarySearchTreeType>::Add ( const BinarySearchTreeType& input, const char *file, unsigned int line )
+    typename BinarySearchTree<BinarySearchTreeType>::node* BinarySearchTree<BinarySearchTreeType>::Add ( const BinarySearchTreeType& input )
     {
         typename BinarySearchTree::node * current;
 
@@ -1008,7 +1008,7 @@ namespace DataStructures
             {
                 current = tree_queue.Pop();
 
-                Add ( *( current->item ), _FILE_AND_LINE_ )
+                Add ( *( current->item ) )
 
                 ;
 
@@ -1033,7 +1033,7 @@ namespace DataStructures
         if ( ( &original_copy ) == this )
             return *this;
 
-        Clear( _FILE_AND_LINE_ );  // Remove the current tree
+        Clear(  );  // Remove the current tree
 
         // This is a copy of the constructor.  A bug in Visual C++ made it so if I just put the constructor call here the variable assignments were ignored.
         BinarySearchTree_size = 0;
@@ -1060,7 +1060,7 @@ namespace DataStructures
             {
                 current = tree_queue.Pop();
 
-                Add ( *( current->item ), _FILE_AND_LINE_ )
+                Add ( *( current->item ) )
 
                 ;
 
@@ -1080,7 +1080,7 @@ namespace DataStructures
     }
 
     template <class BinarySearchTreeType>
-    inline void BinarySearchTree<BinarySearchTreeType>::Clear ( const char *file, unsigned int line )
+    inline void BinarySearchTree<BinarySearchTreeType>::Clear (  )
     {
         typename BinarySearchTree::node * current, *parent;
 
