@@ -29,8 +29,22 @@ ENDIF(WIN32 AND NOT UNIX)
 option(RAKNET_ENABLE_SAMPLES "Generate RakNet sample projects." FALSE)
 option(RAKNET_ENABLE_DLL "Generate the DLL project." TRUE)
 option(RAKNET_ENABLE_STATIC "Generate the static library project." TRUE)
-
 option(RAKNET_ENABLE_LIBCAT_SECURITY "Enable secure connection support." FALSE)
+
+set( RAKNETHEADERFILES ${RakNet_SOURCE_DIR}/Source ) #This name doesn't follow CMake conventions but for retro compatibility I'll let it there.
+
+if( RAKNET_GENERATE_INCLUDE_ONLY_DIR )
+    set( RAKNET_INCLUDE_ONLY_DIR ${RakNet_SOURCE_DIR}/include ) # this will be visible by client code
+    set( RAKNET_NAMED_INCLUDE_ONLY_DIR ${RAKNET_INCLUDE_ONLY_DIR}/RakNet )
+    message( STATUS "Setting up the ${RAKNET_NAMED_INCLUDE_ONLY_DIR} directory..." )
+    # Now setup the include/RakNet/*.h files.
+    install(FILES "${RAKNETHEADERFILES}/" DESTINATION "${RAKNET_NAMED_INCLUDE_ONLY_DIR}/" FILES_MATCHING PATTERN "*.h" COMPONENT "includes")
+    #file( MAKE_DIRECTORY ${RAKNET_NAMED_INCLUDE_ONLY_DIR} )
+    #file( COPY ${RAKNETHEADERFILES}/ DESTINATION ${RAKNET_NAMED_INCLUDE_ONLY_DIR} FILES_MATCHING PATTERN "*.h"  )
+    message( STATUS "DONE: Setting up the ${RAKNET_NAMED_INCLUDE_ONLY_DIR} directory." )
+endif()
+
+set( RAKNET_INCLUDE_DIRS ${RAKNETHEADERFILES} ${RAKNET_INCLUDE_ONLY_DIR} PARENT_SCOPE ) # Visible from outside
 
 include(CmakeIncludes/CmakeMacros.cmake)
 
