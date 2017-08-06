@@ -31,7 +31,7 @@ option(RAKNET_ENABLE_DLL "Generate the DLL project." TRUE)
 option(RAKNET_ENABLE_STATIC "Generate the static library project." TRUE)
 option(RAKNET_ENABLE_LIBCAT_SECURITY "Enable secure connection support." FALSE)
 
-set( RAKNETHEADERFILES ${RakNet_SOURCE_DIR}/Source ) #This name doesn't follow CMake conventions but for retro compatibility I'll let it there.
+set( RAKNETHEADERFILES ${RakNet_SOURCE_DIR}/include ) #This name doesn't follow CMake conventions but for retro compatibility I'll let it there.
 
 if( RAKNET_GENERATE_INCLUDE_ONLY_DIR )
     set( RAKNET_INCLUDE_ONLY_DIR ${RakNet_SOURCE_DIR}/include ) # this will be visible by client code
