@@ -34,7 +34,7 @@ option(RAKNET_ENABLE_LIBCAT_SECURITY "Enable secure connection support." FALSE)
 set( RAKNETHEADERFILES ${RakNet_SOURCE_DIR}/include ) #This name doesn't follow CMake conventions but for retro compatibility I'll let it there.
 
 if( RAKNET_GENERATE_INCLUDE_ONLY_DIR )
-    set( RAKNET_INCLUDE_ONLY_DIR ${RakNet_SOURCE_DIR}/include/) # this will be visible by client code
+    set( RAKNET_INCLUDE_ONLY_DIR ${RakNet_SOURCE_DIR}/include) # this will be visible by client code
     set( RAKNET_NAMED_INCLUDE_ONLY_DIR ${RAKNET_INCLUDE_ONLY_DIR}/raknet )
     message(STATUS "${RAKNETHEADERFILES} -> ${RAKNET_NAMED_INCLUDE_ONLY_DIR}" )
     file( MAKE_DIRECTORY ${RAKNET_NAMED_INCLUDE_ONLY_DIR} )
