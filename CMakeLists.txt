@@ -32,10 +32,9 @@ option(RAKNET_ENABLE_STATIC "Generate the static library project." TRUE)
 option(RAKNET_ENABLE_LIBCAT_SECURITY "Enable secure connection support." FALSE)
 
 if( RAKNET_GENERATE_INCLUDE_ONLY_DIR )
-    set( RAKNETHEADERFILES "${RakNet_SOURCE_DIR}/include/raknet" )
-    set( RAKNET_NAMED_INCLUDE_ONLY_DIR "${RakNet_SOURCE_DIR}/Source")
+    set( RAKNETHEADERFILES "${RakNet_SOURCE_DIR}/include/raknet/" )
+    set( RAKNET_NAMED_INCLUDE_ONLY_DIR "${RakNet_SOURCE_DIR}/Source/")
     message(STATUS "${RAKNETHEADERFILES} -> ${RAKNET_NAMED_INCLUDE_ONLY_DIR}" )
-    #file( MAKE_DIRECTORY ${RAKNET_NAMED_INCLUDE_ONLY_DIR} )
     install( DIRECTORY "${RAKNETHEADERFILES}" DESTINATION "${RAKNET_NAMED_INCLUDE_ONLY_DIR}" COMPONENT "includes" FILES_MATCHING PATTERN "*.h" )
 endif()
 
